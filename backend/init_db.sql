@@ -9,6 +9,8 @@ DROP TABLE IF EXISTS programs CASCADE;
 DROP TABLE IF EXISTS departments CASCADE;
 DROP TABLE IF EXISTS faculties CASCADE;
 DROP TABLE IF EXISTS data_classification CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS admins CASCADE;
 
 -- 2. Классификация данных и метаданные
 CREATE TABLE data_classification (
@@ -91,13 +93,38 @@ CREATE TABLE grades (
     is_passed BOOLEAN
 );
 
--- 7. Заполнение классификации
+-- 7. Администраторы (отдельная таблица, так как не привязаны к сущностям)
+CREATE TABLE admins (
+    id SERIAL PRIMARY KEY,
+    full_name VARCHAR(255) NOT NULL,
+    position VARCHAR(100),
+    security_level VARCHAR(50) DEFAULT 'confidential'
+);
+
+-- 8. Пользователи для авторизации
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    login VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    role VARCHAR(50) NOT NULL CHECK (role IN ('teacher', 'student', 'admin')),
+    entity_id INT NOT NULL,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    security_level VARCHAR(50) DEFAULT 'confidential'
+);
+
+-- 9. Заполнение классификации
 INSERT INTO data_classification (table_name, column_name, security_level, contains_pii, description) VALUES
 ('students', 'student_id_number', 'restricted', false, 'Идентификатор, но не ФИО'),
 ('teachers', 'full_name', 'internal', true, 'ФИО преподавателей разрешено'),
-('staff', 'full_name', 'internal', true, 'ФИО сотрудников разрешено');
+('staff', 'full_name', 'internal', true, 'ФИО сотрудников разрешено'),
+('users', 'login', 'confidential', false, 'Логин для входа с префиксом роли'),
+('users', 'password_hash', 'secret', false, 'Хеш пароля (не сам пароль)'),
+('users', 'email', 'confidential', true, 'Email пользователя (ПДн)'),
+('admins', 'full_name', 'confidential', true, 'ФИО администраторов');
 
--- 8. Заполнение тестовыми данными
+-- 10. Заполнение тестовыми данными
 INSERT INTO faculties (name) VALUES ('Факультет информационных технологий'), ('Экономический факультет');
 
 INSERT INTO departments (faculty_id, name) VALUES 
@@ -135,3 +162,25 @@ INSERT INTO grades (student_id, course_id, grade, is_passed) VALUES
 (2, 1, 4, true), 
 (3, 1, 2, false), 
 (4, 3, 5, true);
+
+-- 11. Администраторы
+INSERT INTO admins (full_name, position) VALUES 
+('Главный Админов А.А.', 'Системный администратор'),
+('Безопасников Б.Б.', 'Администратор безопасности');
+
+-- 12. Пользователи для входа (с префиксами)
+INSERT INTO users (login, password_hash, role, entity_id) VALUES
+-- Преподаватели: prep + ID из таблицы teachers
+('prep1', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'teacher', 1),
+('prep2', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'teacher', 2),
+('prep3', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'teacher', 3),
+
+-- Студенты: stud + student_id_number из таблицы students
+('studST-101', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'student', 1),
+('studST-102', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'student', 2),
+('studST-103', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'student', 3),
+('studST-104', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'student', 4),
+
+-- Администраторы: admin + ID из таблицы admins
+('admin1', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'admin', 1),
+('admin2', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'admin', 2);
