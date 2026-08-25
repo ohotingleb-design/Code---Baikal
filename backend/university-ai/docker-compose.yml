@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: university_db
+    restart: always
+    environment:
+      POSTGRES_DB: university_db
+      POSTGRES_USER: db11_user
+      POSTGRES_PASSWORD: 12345
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
