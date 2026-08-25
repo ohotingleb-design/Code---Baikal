@@ -25,15 +25,15 @@
         <div class="chat-header">
             <div class="header-info">
                 <div class="logo"><i data-lucide="graduation-cap"></i></div>
-                <div>
+                <div class="header-text">
                     <div class="title">Ассистент Университета</div>
+                    <!-- Тихий статус: чей профиль (не кликабельный) -->
+                    <span class="role-badge" id="roleBadge">
+                        <i data-lucide="compass"></i> Гость
+                    </span>
                 </div>
             </div>
             <div class="header-actions">
-                <!-- Пассивный бейдж: чей профиль (не кликабельный) -->
-                <span class="role-badge" id="roleBadge">
-                    <i data-lucide="compass"></i> Гость
-                </span>
                 <button class="btn-header" id="loginBtn" onclick="openLogin()">
                     <i data-lucide="log-in"></i> Войти
                 </button>

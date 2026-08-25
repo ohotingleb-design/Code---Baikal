@@ -36,15 +36,24 @@ body::after  { width:620px; height:620px; background:rgba(6,182,212,.40); bottom
 }
 .header-info { display:flex; align-items:center; gap:12px; min-width:0; flex:1; }
 .logo { font-size:32px; filter:drop-shadow(0 4px 12px rgba(124,58,237,.5)); }
+.header-text { display:flex; flex-direction:column; align-items:flex-start; gap:3px; min-width:0; }
 .title { font-size:18px; font-weight:600; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.header-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; margin-left:auto; }
-/* Бейдж роли — ПАССИВНАЯ метка (не кнопка) */
+
+/* Бейдж роли — тихий статус-подзаголовок (пассивный, приглушённый) */
 .role-badge {
-    background:rgba(255,255,255,.14); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-    border:1px solid rgba(255,255,255,.2); padding:5px 12px; border-radius:999px; font-size:12px; white-space:nowrap;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.25);
+    display:inline-flex; align-items:center; gap:5px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.14);
+    padding:2px 9px; border-radius:999px;
+    font-size:10px; letter-spacing:.2px;
+    color:rgba(255,255,255,.72);
+    opacity:.9; filter:saturate(.7);
+    box-shadow:none;
     cursor:default; pointer-events:none; user-select:none; -webkit-user-select:none;
 }
+.role-badge .lucide { width:11px; height:11px; }
+
+.header-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; margin-left:auto; }
 .btn-header {
     background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.18); color:#fff;
     padding:6px 12px; border-radius:999px; cursor:pointer; font-size:12px; transition:all .2s;
@@ -179,8 +188,6 @@ body::after  { width:620px; height:620px; background:rgba(6,182,212,.40); bottom
 .lucide { width:18px; height:18px; stroke-width:2; stroke:currentColor; fill:none; stroke-linecap:round; stroke-linejoin:round; }
 .logo { display:flex; align-items:center; }
 .logo .lucide { width:26px; height:26px; }
-.role-badge { display:inline-flex; align-items:center; gap:6px; }
-.role-badge .lucide { width:14px; height:14px; }
 .btn-header, .btn-clear, .send-btn, .btn-confirm, .csv-btn, .modal-close { display:inline-flex; align-items:center; justify-content:center; gap:6px; }
 .btn-header .lucide, .csv-btn .lucide { width:14px; height:14px; }
 .btn-clear .lucide { width:16px; height:16px; }
@@ -212,9 +219,10 @@ body::after  { width:620px; height:620px; background:rgba(6,182,212,.40); bottom
     .title { font-size:15px; }
 
     .header-actions { gap:6px; }
-    .role-badge { width:36px; height:36px; padding:0; border-radius:50%; justify-content:center; }
-    .role-badge .lucide { width:16px; height:16px; }
-    .role-badge .badge-text { display:none; }
+    /* Статус как на ПК: иконка + текст роли (длинный текст урезается многоточием) */
+    .role-badge { padding:2px 8px; max-width:100%; }
+    .role-badge .lucide { width:11px; height:11px; flex-shrink:0; }
+    .role-badge .badge-text { min-width:0; overflow:hidden; text-overflow:ellipsis; }
     .btn-header { width:36px; height:36px; padding:0; border-radius:50%; }
     .btn-header .btn-text { display:none; }
     .btn-clear { width:36px; height:36px; }
