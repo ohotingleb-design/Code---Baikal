@@ -125,8 +125,7 @@ INSERT INTO data_classification (table_name, column_name, security_level, contai
 ('admins', 'full_name', 'confidential', true, 'ФИО администраторов');
 
 -- 10. Заполнение тестовыми данными
-INSERT INTO faculties (name) VALUES ('Факультет информационных технологий'), ('Экономический факультет');
-
+INSERT INTO faculties (name) VALUES ('Факультет информационных технологий (ИТ)'), ('Экономический факультет');
 INSERT INTO departments (faculty_id, name) VALUES 
 (1, 'Кафедра баз данных'), 
 (1, 'Кафедра ИИ'), 

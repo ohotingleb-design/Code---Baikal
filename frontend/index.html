@@ -2,77 +2,98 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Ассистент Университета</title>
+
+<!-- Стили -->
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+
+<!-- Подсветка SQL -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
 <div class="chat-container">
     <div id="chatArea">
+
+        <!-- ===== ШАПКА ===== -->
         <div class="chat-header">
             <div class="header-info">
-                <div class="logo">🎓</div>
+                <div class="logo"><i data-lucide="graduation-cap"></i></div>
                 <div>
                     <div class="title">Ассистент Университета</div>
-                    <div class="status"><span class="dot"></span>Онлайн</div>
                 </div>
             </div>
             <div class="header-actions">
-                <span class="role-badge" id="roleBadge">🎒 Гость</span>
-                <button class="btn-header" id="loginBtn" onclick="openLogin()">🔑 Войти</button>
-                <button class="btn-clear" onclick="clearHistory()" title="Очистить историю">🗑️</button>
+                <!-- Пассивный бейдж: чей профиль (не кликабельный) -->
+                <span class="role-badge" id="roleBadge">
+                    <i data-lucide="compass"></i> Гость
+                </span>
+                <button class="btn-header" id="loginBtn" onclick="openLogin()">
+                    <i data-lucide="log-in"></i> Войти
+                </button>
+                <button class="btn-clear" onclick="clearHistory()" title="Очистить историю">
+                    <i data-lucide="trash-2"></i>
+                </button>
             </div>
         </div>
 
+        <!-- ===== ЛЕНТА СООБЩЕНИЙ ===== -->
         <div class="chat-messages" id="chatMessages"></div>
 
+        <!-- ===== ИНДИКАТОР ЗАГРУЗКИ ===== -->
         <div class="typing-indicator" id="typingIndicator" style="display:none;">
-            <div class="typing-avatar">🤖</div>
+            <div class="typing-avatar"><i data-lucide="sparkles"></i></div>
             <div class="typing-dots"><span></span><span></span><span></span></div>
         </div>
 
+        <!-- ===== ПОЛЕ ВВОДА ===== -->
         <div class="chat-input-container">
             <div class="input-wrapper">
                 <textarea id="userInput" placeholder="Задайте вопрос..." rows="1"
                     onkeydown="handleKeyPress(event)" oninput="autoResize(this)"></textarea>
                 <button class="send-btn" onclick="sendMessage()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                    <i data-lucide="arrow-up"></i>
                 </button>
             </div>
             <div class="footer-hint">Enter — отправить • Shift+Enter — новая строка</div>
         </div>
+
     </div>
 </div>
 
-<!-- МОДАЛКА ВХОДА -->
+<!-- ===== МОДАЛКА ВХОДА (логин + пароль) ===== -->
 <div class="modal-overlay" id="loginModal">
     <div class="modal-card">
         <div class="modal-header">
-            <h3>🔐 Вход в систему</h3>
-            <button class="modal-close" onclick="closeLogin()">✖</button>
+            <h3><i data-lucide="lock-keyhole"></i> Вход в систему</h3>
+            <button class="modal-close" onclick="closeLogin()"><i data-lucide="x"></i></button>
         </div>
         <p class="modal-subtitle">Для студентов, преподавателей и сотрудников университета</p>
         <label for="loginInput">Логин</label>
         <input type="text" id="loginInput" placeholder="Введите логин">
         <label for="passwordInput">Пароль</label>
-        <input type="password" id="passwordInput" placeholder="Введите пароль" onkeydown="if(event.key==='Enter') doLogin()">
+        <input type="password" id="passwordInput" placeholder="Введите пароль"
+               onkeydown="if(event.key==='Enter') doLogin()">
         <div class="confirm-error" id="loginError"></div>
         <div class="demo-hint">
             Демо-доступы для защиты:<br>
             студент — <b>ivanov / stud2026</b><br>
             преподаватель — <b>petrova / teach2026</b><br>
-            сотрудник — <b>admin / admin2026</b>
+            администратор — <b>admin / admin2026</b>
         </div>
-        <button class="btn-confirm" onclick="doLogin()">Войти</button>
+        <button class="btn-confirm" onclick="doLogin()">
+            <i data-lucide="log-in"></i> Войти
+        </button>
     </div>
 </div>
 
 <script src="script.js"></script>
+<script>lucide.createIcons();</script>
 </body>
 </html>
