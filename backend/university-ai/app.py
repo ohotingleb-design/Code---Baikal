@@ -101,9 +101,42 @@ departments.faculty_id = faculties.id
 
 ВАЖНО: SQL всегда должен быть внутри тегов <sql>...</sql>. Без SQL не отвечай.
 Если вопрос не про данные БД (приветствие, общие вопросы) — всё равно сгенерируй простой SQL типа SELECT 'Привет! Я готов помочь.' AS answer.
+ПРИМЕРЫ СЛОЖНЫХ ЗАПРОСОВ:
+
+Вопрос: "Сколько студентов обучается на каждом факультете?"
+<sql>
+SELECT f.name AS faculty, COUNT(s.id) AS student_count
+FROM faculties f
+LEFT JOIN students s ON s.faculty_id = f.id
+GROUP BY f.id, f.name
+ORDER BY student_count DESC
+</sql>
+
+Вопрос: "Какой средний балл у поступивших на 'Информатику' в 2025 году?"
+<sql>
+SELECT AVG(a.total_score) AS avg_score
+FROM applicants a
+JOIN programs p ON p.id = a.program_id
+WHERE p.name ILIKE '%информатик%' 
+  AND a.application_year = 2025 
+  AND a.is_admitted = true
+</sql>
+
+Вопрос: "Покажи динамику набора студентов за последние 5 лет"
+<sql>
+WITH yearly_counts AS (
+  SELECT enrollment_year AS year, COUNT(*) AS students
+  FROM students
+  WHERE enrollment_year >= 2021
+  GROUP BY enrollment_year
+)
+SELECT year, students
+FROM yearly_counts
+ORDER BY year
+</sql>
 """
 
-WHITELIST = {"faculties", "departments", "programs", "staff", "teachers",
+WHITELIST = {"faculties", "departments", "programs", "teachers",
              "students", "applicants", "courses", "grades", "admins"}
 FORBIDDEN = ["INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "TRUNCATE",
              "CREATE", "GRANT", "EXEC", "COPY", "PG_SLEEP", "SLEEP",
@@ -177,9 +210,13 @@ def validate_sql(sql):
     if "--" in s or "/*" in s or ";" in s:
         return False, "Comments and compound queries forbidden", None
     
+    # Имена CTE (WITH x AS (...)) не считаем чужими таблицами
+    cte_names = {m.lower() for m in re.findall(r"\bWITH\s+([a-zA-Z_]\w*)\s+AS\s*\(", s, re.I)}
+    cte_names |= {m.lower() for m in re.findall(r",\s*([a-zA-Z_]\w*)\s+AS\s*\(", s, re.I)}
+
     # Улучшенный regex: учитывает кавычки и корректно извлекает имена таблиц
     tables = {t.lower().strip('"') for t in re.findall(r"(?:FROM|JOIN)\s+\"?([a-zA-Z_]\w*)\"?", s)}
-    bad = tables - WHITELIST
+    bad = tables - WHITELIST - cte_names
     if bad:
         return False, "Tables outside whitelist: " + ", ".join(sorted(bad)), None
     

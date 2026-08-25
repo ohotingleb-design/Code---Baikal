@@ -1,22 +1,17 @@
-2026-08-25 16:02:41,453 | INFO | Question from 127.0.0.1 (role=student): сколько всего студентов?
-2026-08-25 16:02:43,081 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-25 16:02:43,082 | INFO | LLM answered in 1.63 sec, length=219
-2026-08-25 16:02:43,082 | INFO | Executing SQL: SELECT COUNT(*) AS total_students FROM students
-2026-08-25 16:02:43,101 | ERROR | DB error: permission denied for table students
-2026-08-25 16:13:30,806 | INFO | Question from 127.0.0.1 (role=student): сколько всего студентов?
-2026-08-25 16:13:33,223 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-25 16:13:33,230 | INFO | LLM answered in 2.42 sec, length=104
-2026-08-25 16:13:33,231 | INFO | Executing SQL: SELECT COUNT(*) AS total_students
-FROM students
-2026-08-25 16:13:33,247 | INFO | Success: 1 rows
-2026-08-25 16:15:35,917 | INFO | Question from 127.0.0.1 (role=student): сколько всего студентов?
-2026-08-25 16:15:37,892 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-25 16:15:37,893 | INFO | LLM answered in 1.98 sec, length=219
-2026-08-25 16:15:37,893 | INFO | Executing SQL: SELECT COUNT(*) AS total_students FROM students
-2026-08-25 16:15:37,920 | INFO | Success: 1 rows
-2026-08-25 16:21:46,786 | INFO | Question from 127.0.0.1 (role=student): сколько факультетов?
-2026-08-25 16:21:47,893 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-25 16:21:47,894 | INFO | LLM answered in 1.11 sec, length=126
-2026-08-25 16:21:47,894 | INFO | Executing SQL: SELECT COUNT(DISTINCT faculties.id) AS count_of_faculties
-FROM faculties
-2026-08-25 16:21:47,907 | INFO | Success: 1 rows
+2026-08-25 20:51:50,238 | INFO | Question from 127.0.0.1 (role=student): покажи динамику набора за 5 лет
+2026-08-25 20:51:53,459 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-25 20:51:53,467 | INFO | LLM answered in 3.23 sec, length=387
+2026-08-25 20:51:53,468 | INFO | Executing SQL: SELECT COUNT(*) AS count, application_year
+FROM applicants
+WHERE application_year >= (CURRENT_DATE::DATE - INTERVAL '5 year')
+GROUP BY application_year
+LIMIT 50
+2026-08-25 20:51:53,488 | ERROR | DB error: operator does not exist: integer >= timestamp without time zone
+LINE 3: WHERE application_year >= (CURRENT_DATE::DATE - INTERVAL '5 ...
+                               ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+2026-08-25 20:52:03,194 | INFO | Question from 127.0.0.1 (role=student): сколько всего студентов?
+2026-08-25 20:52:04,590 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-25 20:52:04,592 | INFO | LLM answered in 1.40 sec, length=219
+2026-08-25 20:52:04,592 | INFO | Executing SQL: SELECT COUNT(*) AS total_students FROM students
+2026-08-25 20:52:04,627 | INFO | Success: 1 rows
