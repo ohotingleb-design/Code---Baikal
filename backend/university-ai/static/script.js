@@ -1,152 +1,107 @@
-const API_URL = "/api/ask";
-const AUTH_URL = "/api/auth";
-const STATS_URL = "/api/stats";
+const API_URL = "http://localhost:8000/api/query";
 const STORAGE_KEY = "chat_history_university";
 const USER_KEY = "current_user";
 
 // ===== РОЛИ =====
 const ROLE_HINTS = {
-    applicant: {
-        name: "Гость (абитуриент)", icon: "compass",
-        description: "Публичный доступ — агрегированная статистика приёма, направления, проходные баллы.",
-        suggestions: [
-            "Сколько бюджетных мест на направлении «Экономика»?",
-            "Какой средний проходной балл был в 2025 году?",
-            "Сколько заявлений подано на «Информатика» в 2026?",
-            "Какие направления подготовки есть в университете?"
-        ]
-    },
-    student: {
-        name: "Студент", icon: "graduation-cap",
-        description: "Доступ к собственной успеваемости, задолженностям, расписанию и дисциплинам.",
-        suggestions: [
-            "Какой у меня средний балл за семестр?",
-            "Есть ли у меня академические задолженности?",
-            "Какие дисциплины у меня в этом семестре?",
-            "Покажи расписание занятий"
-        ]
-    },
-    teacher: {
-        name: "Преподаватель", icon: "book-open",
-        description: "Ваши дисциплины, группы, средний балл и учебная нагрузка.",
-        suggestions: [
-            "Сколько студентов записано на курс «Базы данных»?",
-            "Какой средний балл по моей дисциплине?",
-            "Сколько студентов не сдали экзамен?",
-            "Какая у меня учебная нагрузка в этом семестре?"
-        ]
-    },
-    admin: {
-        name: "Администратор", icon: "building-2",
-        description: "Статистика по факультетам, приёмной кампании и отчётность (обезличенно).",
-        suggestions: [
-            "Сколько студентов обучается на факультете ИТ?",
-            "Покажи динамику набора студентов за 5 лет",
-            "Какая кафедра имеет наибольшую учебную нагрузку?",
-            "Какова средняя заполняемость аудиторий?"
-        ]
-    }
+    applicant: { name: "Гость (абитуриент)", icon: "compass", desc: "Публичный доступ — агрегированная статистика приёма, направления, проходные баллы.", suggestions: ["Сколько бюджетных мест на «Экономике»?", "Какой средний проходной балл был в 2025 году?", "Сколько заявлений подано на «Информатику» в 2026?", "Какие направления подготовки есть в университете?"] },
+    student: { name: "Студент", icon: "graduation-cap", desc: "Доступ к собственной успеваемости, задолженностям, расписанию и дисциплинам.", suggestions: ["Какой у меня средний балл за семестр?", "Есть ли у меня академические задолженности?", "Какие дисциплины у меня в этом семестре?", "Покажи расписание занятий"] },
+    teacher: { name: "Преподаватель", icon: "book-open", desc: "Ваши дисциплины, группы, средний балл и учебная нагрузка.", suggestions: ["Сколько студентов записано на курс «Базы данных»?", "Какой средний балл по моей дисциплине?", "Сколько студентов не сдали экзамен?", "Какая у меня учебная нагрузка в этом семестре?"] },
+    admin: { name: "Сотрудник / Администрация", icon: "building-2", desc: "Статистика по факультетам, приёмной кампании и отчётность (обезличенно).", suggestions: ["Сколько студентов обучается на факультете ИТ?", "Покажи динамику набора студентов за 5 лет", "Какая кафедра имеет наибольшую учебную нагрузку?", "Какова средняя заполняемость аудиторий?"] }
+};
+
+const USERS = {
+    ivanov:  { password: "stud2026",  role: "student", name: "Иванов Иван", entity_id: 1, student_number: "ST-101" },
+    petrova: { password: "teach2026", role: "teacher", name: "Петрова Анна Сергеевна", entity_id: 1, student_number: null },
+    admin:   { password: "admin2026", role: "admin",   name: "Управление аналитики", entity_id: 1, student_number: null }
 };
 
 // ===== ХЕЛПЕРЫ =====
-function icon(name) { return '<i data-lucide="' + name + '"></i>'; }
+function icon(name) { return `<i data-lucide="${name}"></i>`; }
 function refreshIcons() { if (window.lucide) lucide.createIcons(); }
 
-function escapeHtml(str) {
-    var div = document.createElement("div");
-    div.textContent = String(str);
-    return div.innerHTML;
-}
-
-// ===== ✅ НОВОЕ: ТЕМЫ =====
+// ===== ТЕМЫ =====
 function applyTheme(theme) {
     document.body.classList.toggle("light", theme === "light");
-    var btn = document.getElementById("themeBtn");
-    if (btn) {
-        btn.innerHTML = theme === "light" ? icon("moon") : icon("sun");
-        btn.title = theme === "light" ? "Включить тёмную тему" : "Включить светлую тему";
-    }
+    const btn = document.getElementById("themeBtn");
+    btn.innerHTML = theme === "light" ? icon("moon") : icon("sun");
+    btn.title = theme === "light" ? "Включить тёмную тему" : "Включить светлую тему";
     localStorage.setItem("theme", theme);
     refreshIcons();
 }
-
 function toggleTheme() {
-    var cur = localStorage.getItem("theme") || "dark";
-    var newTheme = cur === "dark" ? "light" : "dark";
-    console.log("Переключаю тему:", cur, "->", newTheme);
-    console.log("body классы ДО:", document.body.className);
-    applyTheme(newTheme);
-    console.log("body классы ПОСЛЕ:", document.body.className);
+    const cur = localStorage.getItem("theme") || "dark";
+    applyTheme(cur === "dark" ? "light" : "dark");
 }
 
-// ===== СОСТОЯНИЕ =====
-var currentUser = JSON.parse(localStorage.getItem(USER_KEY) || "null");
-var chatHistory = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+// ===== СОСТОЯНИЕ КНОПКИ ОТПРАВКИ И РЕСАЙЗ =====
+const userInputEl = document.getElementById("userInput");
+const sendBtnEl = document.getElementById("sendBtn");
 
-if (!currentUser) {
-    currentUser = { role: "applicant", name: "Гость", auth: false };
+function updateSendState() {
+    sendBtnEl.classList.toggle("disabled", !userInputEl.value.trim());
 }
 
-// ===== ИНИЦИАЛИЗАЦИЯ =====
-document.addEventListener("DOMContentLoaded", function() {
-    // ✅ НОВОЕ: применяем тему
-    applyTheme(localStorage.getItem("theme") ||
-        (window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
+function autoResize() {
+    userInputEl.style.height = "auto";
+    userInputEl.style.height = Math.min(userInputEl.scrollHeight, 120) + "px";
+}
 
+let currentUser = JSON.parse(localStorage.getItem(USER_KEY) || "null");
+let chatHistory = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+// === ИНИЦИАЛИЗАЦИЯ ===
+document.addEventListener("DOMContentLoaded", () => {
+    // Тема: сохранённая или системная
+    applyTheme(localStorage.getItem("theme") || (window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
+
+    if (!currentUser) currentUser = { role: "applicant", name: "Гость", auth: false };
+    
     updateHeaderBadge();
-    if (chatHistory.length > 0) {
-        renderHistory();
-    } else {
-        renderWelcome();
-    }
+    if (chatHistory.length > 0) renderHistory();
+    else renderWelcome();
+    
     refreshIcons();
+    userInputEl.focus();
 
-    var input = document.getElementById("userInput");
-    if (input) {
-        input.focus();
-        input.addEventListener("keydown", handleKeyPress);
-        input.addEventListener("input", function() { autoResize(input); });
-    }
+    // UX: Закрытие модалки по Esc и клику по фону
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeLogin(); });
+    document.getElementById("loginModal").addEventListener("click", e => {
+        if (e.target.id === "loginModal") closeLogin();
+    });
 
-    var sendBtn = document.getElementById("sendBtn");
-    if (sendBtn) {
-        sendBtn.addEventListener("click", sendMessage);
-    }
+    // UX: Обработчики поля ввода
+    userInputEl.addEventListener("input", () => { autoResize(); updateSendState(); });
+    userInputEl.addEventListener("keydown", e => {
+        if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+    
+    // Enter в поле логина тоже должен вызывать вход
+    document.getElementById("loginInput").addEventListener("keydown", e => {
+        if (e.key === "Enter") doLogin();
+    });
 
-    // UX: закрытие модалки по Esc и клику по фону
-    document.addEventListener("keydown", function(e) { if (e.key === "Escape") closeLogin(); });
-    var loginModal = document.getElementById("loginModal");
-    if (loginModal) {
-        loginModal.addEventListener("click", function(e) {
-            if (e.target.id === "loginModal") closeLogin();
-        });
-    }
+    updateSendState(); // Начальное состояние кнопки
 });
 
-// ===== ШАПКА =====
+// === ШАПКА ===
 function updateHeaderBadge() {
-    var r = ROLE_HINTS[currentUser.role] || ROLE_HINTS.applicant;
-    var badge = document.getElementById("roleBadge");
-    var btn = document.getElementById("loginBtn");
+    const r = ROLE_HINTS[currentUser.role] || ROLE_HINTS.applicant;
+    const badge = document.getElementById("roleBadge");
+    const btn = document.getElementById("loginBtn");
 
-    if (badge) {
-        badge.innerHTML = icon(r.icon) + ' <span class="badge-text">' + r.name + '</span>';
-        badge.title = r.name;
-    }
+    badge.innerHTML = `${icon(r.icon)} <span class="badge-text">${r.name}</span>`;
+    badge.title = r.name;
 
-    if (btn) {
-        if (currentUser.auth) {
-            btn.innerHTML = icon("log-out") + ' <span class="btn-text">Выйти</span>';
-            btn.title = "Выйти";
-        } else {
-            btn.innerHTML = icon("log-in") + ' <span class="btn-text">Войти</span>';
-            btn.title = "Войти";
-        }
-    }
+    btn.innerHTML = currentUser.auth
+        ? `${icon("log-out")} <span class="btn-text">Выйти</span>`
+        : `${icon("log-in")} <span class="btn-text">Войти</span>`;
+    btn.title = currentUser.auth ? "Выйти" : "Войти";
+
     refreshIcons();
 }
 
-// ===== МОДАЛКА ВХОДА =====
+// === МОДАЛКА ВХОДА ===
 function openLogin() {
     if (currentUser.auth) {
         if (confirm("Выйти из учётной записи и вернуться к гостевому доступу?")) {
@@ -169,57 +124,30 @@ function closeLogin() {
 }
 
 function doLogin() {
-    var login = document.getElementById("loginInput").value.trim();
-    var pass = document.getElementById("passwordInput").value;
-    var err = document.getElementById("loginError");
+    const login = document.getElementById("loginInput").value.trim();
+    const pass = document.getElementById("passwordInput").value;
+    const err = document.getElementById("loginError");
     err.innerHTML = "";
 
-    fetch(AUTH_URL, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({login: login, password: pass})
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(result) {
-        if (!result.success) {
-            err.innerHTML = icon("triangle-alert") + " " + (result.detail || "Неверный логин или пароль.");
-            refreshIcons();
-            return;
-        }
-        currentUser = {
-            role: result.role,
-            name: result.name,
-            login: login,
-            entity_id: result.entity_id,
-            student_number: result.student_number,
-            auth: true
-        };
-        localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
-        closeLogin();
-        updateHeaderBadge();
-        renderWelcome();
-    })
-    .catch(function() {
-        err.innerHTML = icon("triangle-alert") + " Ошибка соединения с сервером.";
+    const acc = USERS[login];
+    if (!acc || acc.password !== pass) {
+        err.innerHTML = `${icon("triangle-alert")} Неверный логин или пароль.`;
         refreshIcons();
-    });
-}
-
-// ===== РАБОТА С ТЕКСТОМ =====
-function autoResize(el) {
-    el.style.height = "auto";
-    el.style.height = Math.min(el.scrollHeight, 120) + "px";
-}
-
-function handleKeyPress(e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
+        return;
     }
+
+    currentUser = { role: acc.role, name: acc.name, login, entity_id: acc.entity_id, student_number: acc.student_number, auth: true };
+    localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+    closeLogin();
+    updateHeaderBadge();
+    renderWelcome();
 }
 
+// === ЧАТ ===
 function useSuggestion(el) {
-    document.getElementById("userInput").value = el.textContent;
+    userInputEl.value = el.textContent;
+    autoResize();
+    updateSendState();
     sendMessage();
 }
 
@@ -231,182 +159,143 @@ function clearHistory() {
     }
 }
 
-// ===== РЕНДЕРИНГ =====
 function renderWelcome() {
-    var r = ROLE_HINTS[currentUser.role] || ROLE_HINTS.applicant;
-    document.getElementById("chatMessages").innerHTML =
-        '<div class="welcome-message">' +
-            '<div class="welcome-icon">' + icon(r.icon) + '</div>' +
-            '<h3>Здравствуйте!</h3>' +
-            '<p>' + r.description + '</p>' +
-            '<div class="suggestions">' +
-                r.suggestions.map(function(s) {
-                    return '<div class="suggestion" onclick="useSuggestion(this)">' + s + '</div>';
-                }).join("") +
-            '</div>' +
-        '</div>';
+    const r = ROLE_HINTS[currentUser.role] || ROLE_HINTS.applicant;
+    document.getElementById("chatMessages").innerHTML = `
+        <div class="welcome-message">
+            <div class="welcome-icon">${icon(r.icon)}</div>
+            <h3>Здравствуйте!</h3>
+            <p>${r.desc}</p>
+            <div class="suggestions">
+                ${r.suggestions.map(s => `<div class="suggestion" onclick="useSuggestion(this)">${s}</div>`).join("")}
+            </div>
+        </div>`;
     refreshIcons();
 }
 
 function renderHistory() {
     document.getElementById("chatMessages").innerHTML = "";
-    chatHistory.forEach(addMessageToDOM);
+    chatHistory.forEach(msg => addMessageToDOM(msg));
 }
 
 function addMessageToDOM(msg) {
-    var container = document.getElementById("chatMessages");
-    var div = document.createElement("div");
-    div.className = "message " + msg.role;
-    var avatar = msg.role === "user" ? icon("user-round") : icon("sparkles");
-    var contentHTML = "<div>" + escapeHtml(msg.content) + "</div>";
+    const container = document.getElementById("chatMessages");
+    const div = document.createElement("div");
+    div.className = `message ${msg.role}`;
+    const avatar = msg.role === "user" ? icon("user-round") : icon("sparkles");
+    let contentHTML = `<div>${escapeHtml(msg.content)}</div>`;
 
     if (msg.role === "bot") {
         if (msg.error) {
-            contentHTML = '<div class="error-message">' + icon("triangle-alert") + " " + escapeHtml(msg.error) + '</div>';
+            contentHTML = `<div class="error-message">${icon("triangle-alert")} ${escapeHtml(msg.error)}</div>`;
         } else {
             if (msg.sql) {
-                contentHTML +=
-                    '<div class="sql-block">' +
-                        '<div class="sql-header">' +
-                            '<span>' + icon("database") + ' SQL-запрос</span>' +
-                            '<button onclick="copySQL(this)">' + icon("copy") + ' Копировать</button>' +
-                        '</div>' +
-                        '<pre><code class="language-sql">' + escapeHtml(msg.sql) + '</code></pre>' +
-                    '</div>';
+                contentHTML += `<div class="sql-block"><div class="sql-header"><span>${icon("database")} SQL-запрос</span><button onclick="copySQL(this)">${icon("copy")} Копировать</button></div><pre><code class="language-sql">${escapeHtml(msg.sql)}</code></pre></div>`;
             }
             if (msg.data && msg.data.length > 0) {
                 contentHTML += renderTable(msg.data);
-                contentHTML += '<button class="csv-btn" onclick="exportCSV(this)">' + icon("download") + ' Экспорт в CSV</button>';
+                contentHTML += `<button class="csv-btn" onclick="exportCSV(this)">${icon("download")} Экспорт в CSV</button>`;
             } else if (msg.sql) {
-                contentHTML += '<div style="margin-top:8px;color:#94a3b8;font-style:italic;">' + icon("check") + ' Запрос выполнен. Данные не найдены.</div>';
+                contentHTML += `<div style="margin-top:8px;color:#94a3b8;font-style:italic;">${icon("check")} Запрос выполнен. Данные не найдены.</div>`;
             }
         }
     }
 
-    div.innerHTML = '<div class="avatar">' + avatar + '</div><div class="message-content">' + contentHTML + '</div>';
+    div.innerHTML = `<div class="avatar">${avatar}</div><div class="message-content">${contentHTML}</div>`;
     container.appendChild(div);
-
+    
     if (msg.sql && window.hljs) {
-        var codeEl = div.querySelector("code.language-sql");
+        const codeEl = div.querySelector("code.language-sql");
         if (codeEl) hljs.highlightElement(codeEl);
     }
     refreshIcons();
-
-    setTimeout(function() {
-        div.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }, 100);
+    container.scrollTop = container.scrollHeight;
 }
 
 function renderTable(data) {
     if (!data || !data.length) return "";
-    var headers = Object.keys(data[0]);
-    var html = '<div class="result-table"><table><thead><tr>';
-    headers.forEach(function(h) { html += "<th>" + escapeHtml(h) + "</th>"; });
-    html += '</tr></thead><tbody>';
-    data.forEach(function(row) {
-        html += "<tr>";
-        headers.forEach(function(h) {
-            var v = row[h];
-            html += "<td>" + escapeHtml(v == null ? "" : String(v)) + "</td>";
-        });
-        html += "</tr>";
+    const headers = Object.keys(data[0]);
+    let html = `<div class="result-table"><table><thead><tr>`;
+    headers.forEach(h => html += `<th>${escapeHtml(h)}</th>`);
+    html += `</tr></thead><tbody>`;
+    data.forEach(row => {
+        html += `<tr>`;
+        headers.forEach(h => html += `<td>${escapeHtml(String(row[h] ?? ""))}</td>`);
+        html += `</tr>`;
     });
-    return html + '</tbody></table></div>';
+    return html + `</tbody></table></div>`;
 }
 
 function copySQL(btn) {
-    var code = btn.closest(".sql-block").querySelector("code");
-    navigator.clipboard.writeText(code.textContent);
-    btn.innerHTML = icon("check") + " Скопировано";
+    navigator.clipboard.writeText(btn.closest(".sql-block").querySelector("code").textContent);
+    btn.innerHTML = `${icon("check")} Скопировано`;
     refreshIcons();
-    setTimeout(function() {
-        btn.innerHTML = icon("copy") + " Копировать";
-        refreshIcons();
-    }, 2000);
+    setTimeout(() => { btn.innerHTML = `${icon("copy")} Копировать`; refreshIcons(); }, 2000);
 }
 
 function exportCSV(btn) {
-    var table = btn.previousElementSibling.querySelector("table");
+    const table = btn.previousElementSibling.querySelector("table");
     if (!table) return;
-    var csv = "";
-    table.querySelectorAll("tr").forEach(function(row) {
-        var cells = Array.from(row.querySelectorAll("th,td"));
-        csv += cells.map(function(c) {
-            return '"' + c.textContent.replace(/"/g, '""') + '"';
-        }).join(",") + "\n";
+    let csv = "";
+    table.querySelectorAll("tr").forEach(row => {
+        csv += Array.from(row.querySelectorAll("th,td")).map(c => `"${c.textContent.replace(/"/g, '""')}"`).join(",") + "\n";
     });
-    var link = document.createElement("a");
+    const link = document.createElement("a");
     link.href = URL.createObjectURL(new Blob([csv], {type: "text/csv;charset=utf-8;"}));
-    link.download = "data_" + Date.now() + ".csv";
+    link.download = `data_${Date.now()}.csv`;
     link.click();
 }
 
-// ===== ОТПРАВКА СООБЩЕНИЯ =====
-function sendMessage() {
-    var input = document.getElementById("userInput");
-    var text = input.value.trim();
+async function sendMessage() {
+    const text = userInputEl.value.trim();
     if (!text) return;
 
     addMessageToDOM({role: "user", content: text});
     chatHistory.push({role: "user", content: text});
-    input.value = "";
-    autoResize(input);
+    
+    userInputEl.value = "";
+    autoResize();
+    updateSendState();
+    userInputEl.focus(); // Возвращаем фокус
 
     document.getElementById("typingIndicator").style.display = "flex";
+    const box = document.getElementById("chatMessages");
+    box.scrollTop = box.scrollHeight;
 
-    fetch(API_URL, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            question: text,
-            user_role: currentUser.role,
-            user_name: currentUser.name || "",
-            student_number: currentUser.student_number || null,
-            entity_id: currentUser.entity_id || null
-        })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(result) {
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                question: text,
+                role: currentUser.role,
+                user_name: currentUser.name || "",
+                entity_id: currentUser.entity_id || null,
+                student_number: currentUser.student_number || null
+            })
+        });
+        const result = await response.json();
         document.getElementById("typingIndicator").style.display = "none";
-        var botMsg;
-        if (result.status === "ok") {
-            botMsg = {
-                role: "bot",
-                content: result.answer || "Готово!",
-                sql: result.sql,
-                data: (result.data && result.data.rows) ? result.data.rows : []
-            };
+
+        let botMsg;
+        if (response.ok && !result.error) {
+            botMsg = {role: "bot", content: "Готово!", sql: result.sql, data: result.data};
         } else {
-            botMsg = {
-                role: "bot",
-                content: "Ошибка",
-                error: result.answer || "Не удалось выполнить запрос"
-            };
+            botMsg = {role: "bot", content: "Ошибка", error: result.detail || result.error || "Не удалось выполнить запрос"};
         }
         addMessageToDOM(botMsg);
         chatHistory.push(botMsg);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
-    })
-    .catch(function() {
+    } catch (err) {
         document.getElementById("typingIndicator").style.display = "none";
-        var botMsg = {
-            role: "bot",
-            content: "Ошибка сети",
-            error: "Не удалось подключиться к серверу."
-        };
+        const botMsg = {role: "bot", content: "Ошибка сети", error: "Не удалось подключиться к серверу. Проверьте, что бэкенд запущен."};
         addMessageToDOM(botMsg);
         chatHistory.push(botMsg);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
-    });
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
 }
 
-// Глобальные функции для inline-обработчиков в HTML (onclick)
-window.openLogin = openLogin;
-window.closeLogin = closeLogin;
-window.doLogin = doLogin;
-window.clearHistory = clearHistory;
-window.useSuggestion = useSuggestion;
-window.copySQL = copySQL;
-window.exportCSV = exportCSV;
-// ✅ НОВОЕ: функция темы тоже глобальная
-window.toggleTheme = toggleTheme;
+function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+}
