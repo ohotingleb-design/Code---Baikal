@@ -1,108 +1,145 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ассистент Университета</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ассистент Университета</title>
 
-<!-- Стили -->
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <!-- Основные стили -->
+    <link rel="stylesheet" href="/static/style.css">
+    
+    <!-- Подсветка синтаксиса SQL (Highlight.js) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
 
-<!-- Подсветка SQL -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
-
-<!-- Lucide Icons -->
-<script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Иконки (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-<!-- ✅ Применяем тему ДО отрисовки (без мигания) -->
-<script>
-document.body.classList.toggle("light",
-    (localStorage.getItem("theme") ||
-     (window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")) === "light");
-</script>
+    <!-- ✅ Применяем тему ДО отрисовки, чтобы избежать мигания (FOUC) -->
+    <script>
+        document.body.classList.toggle("light",
+            (localStorage.getItem("theme") ||
+             (window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")) === "light"
+        );
+    </script>
 
-<div class="chat-container">
-    <div id="chatArea">
-
-        <!-- ===== ШАПКА ===== -->
-        <div class="chat-header">
-            <div class="header-info">
-                <div class="logo"><i data-lucide="graduation-cap"></i></div>
-                <div class="header-text">
-                    <div class="title">Ассистент Университета</div>
-                    <span class="role-badge" id="roleBadge">
-                        <i data-lucide="compass"></i> Гость
-                    </span>
+    <!-- ===== ОСНОВНОЙ КОНТЕЙНЕР ЧАТА ===== -->
+    <div class="chat-container">
+        <div id="chatArea">
+            
+            <!-- ШАПКА -->
+            <div class="chat-header">
+                <div class="header-info">
+                    <div class="logo"><i data-lucide="graduation-cap"></i></div>
+                    <div class="header-text">
+                        <div class="title">Ассистент Университета</div>
+                        <span class="role-badge" id="roleBadge">
+                            <i data-lucide="compass"></i> <span class="badge-text">Гость</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-header" id="loginBtn" onclick="openLogin()" aria-label="Войти или выйти">
+                        <i data-lucide="log-in"></i> <span class="btn-text">Войти</span>
+                    </button>
+                    <!-- Кнопка логов: скрыта по умолчанию, JS покажет её только админу -->
+                    <button class="btn-header" id="logsBtn" onclick="openLogs()" style="display:none;" aria-label="Системные логи">
+                        <i data-lucide="scroll-text"></i> <span class="btn-text">Логи</span>
+                    </button>
+                    <button class="btn-clear" id="themeBtn" onclick="toggleTheme()" title="Сменить тему" aria-label="Сменить тему">
+                        <i data-lucide="sun"></i>
+                    </button>
+                    <button class="btn-clear" onclick="clearHistory()" title="Очистить историю" aria-label="Очистить историю">
+                        <i data-lucide="trash-2"></i>
+                    </button>
                 </div>
             </div>
-            <div class="header-actions">
-                <button class="btn-header" id="loginBtn" onclick="openLogin()" aria-label="Войти или выйти">
-                    <i data-lucide="log-in"></i> <span class="btn-text">Войти</span>
-                </button>
-                <button class="btn-clear" id="themeBtn" onclick="toggleTheme()" title="Сменить тему" aria-label="Сменить тему">
-                    <i data-lucide="sun"></i>
-                </button>
-                <button class="btn-clear" onclick="clearHistory()" title="Очистить историю" aria-label="Очистить историю">
-                    <i data-lucide="trash-2"></i>
+
+            <!-- ЛЕНТА СООБЩЕНИЙ -->
+            <div class="chat-messages" id="chatMessages"></div>
+
+            <!-- ИНДИКАТОР ЗАГРУЗКИ (Печатает бот) -->
+            <div class="typing-indicator" id="typingIndicator" style="display:none;">
+                <div class="typing-avatar"><i data-lucide="sparkles"></i></div>
+                <div class="typing-dots"><span></span><span></span><span></span></div>
+            </div>
+
+            <!-- ПОЛЕ ВВОДА -->
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <textarea id="userInput" placeholder="Задайте вопрос..." rows="1" aria-label="Поле ввода сообщения"></textarea>
+                    <button class="send-btn" id="sendBtn" aria-label="Отправить сообщение">
+                        <i data-lucide="arrow-up"></i>
+                    </button>
+                </div>
+                <div class="footer-hint">Enter — отправить • Shift+Enter — новая строка</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===== МОДАЛЬНОЕ ОКНО ВХОДА ===== -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i data-lucide="lock-keyhole"></i> Вход в систему</h3>
+                <button class="modal-close" onclick="closeLogin()" aria-label="Закрыть окно"><i data-lucide="x"></i></button>
+            </div>
+            <p class="modal-subtitle">Для студентов, преподавателей и сотрудников университета</p>
+            
+            <label for="loginInput">Логин</label>
+            <input type="text" id="loginInput" placeholder="Введите логин">
+            
+            <label for="passwordInput">Пароль</label>
+            <input type="password" id="passwordInput" placeholder="Введите пароль">
+            
+            <div class="confirm-error" id="loginError"></div>
+            
+            <div class="demo-hint">
+                <b>Демо-доступы:</b><br>
+                👨‍🎓 студент: <b>ivanov</b> / stud2026<br>
+                👨‍🏫 преподаватель: <b>petrova</b> / teach2026<br>
+                👔 администратор: <b>admin</b> / admin2026
+            </div>
+            
+            <button class="btn-confirm" onclick="doLogin()">
+                <i data-lucide="log-in"></i> Войти
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== МОДАЛЬНОЕ ОКНО ЛОГОВ (Только для админов) ===== -->
+    <div class="modal-overlay" id="logsModal">
+        <div class="modal-card logs-modal">
+            <div class="modal-header">
+                <h3><i data-lucide="scroll-text"></i> Системные логи</h3>
+                <button class="modal-close" onclick="closeLogs()" aria-label="Закрыть окно"><i data-lucide="x"></i></button>
+            </div>
+            
+            <div class="logs-controls">
+                <input type="number" id="logsLines" value="100" min="10" max="1000" placeholder="Строк" title="Количество строк">
+                <input type="text" id="logsFilter" placeholder="Фильтр (например: ERROR, ivanov)..." title="Поиск по логам">
+                <button class="btn-confirm" onclick="loadLogs()" style="padding: 8px 16px; width: auto; margin-top: 0;">
+                    <i data-lucide="refresh-cw"></i> Обновить
                 </button>
             </div>
+            
+            <div id="logsStats"></div>
+            <pre id="logsContent">Загрузка...</pre>
         </div>
-
-        <!-- ===== ЛЕНТА СООБЩЕНИЙ ===== -->
-        <div class="chat-messages" id="chatMessages"></div>
-
-        <!-- ===== ИНДИКАТОР ЗАГРУЗКИ ===== -->
-        <div class="typing-indicator" id="typingIndicator" style="display:none;">
-            <div class="typing-avatar"><i data-lucide="sparkles"></i></div>
-            <div class="typing-dots"><span></span><span></span><span></span></div>
-        </div>
-
-        <!-- ===== ПОЛЕ ВВОДА ===== -->
-        <div class="chat-input-container">
-            <div class="input-wrapper">
-                <!-- Убраны inline-обработчики, теперь всё управляется через script.js для чистоты и UX -->
-                <textarea id="userInput" placeholder="Задайте вопрос..." rows="1" aria-label="Поле ввода сообщения"></textarea>
-                <button class="send-btn" id="sendBtn" aria-label="Отправить сообщение">
-                    <i data-lucide="arrow-up"></i>
-                </button>
-            </div>
-            <div class="footer-hint">Enter — отправить • Shift+Enter — новая строка</div>
-        </div>
-
     </div>
-</div>
 
-<!-- ===== МОДАЛКА ВХОДА ===== -->
-<div class="modal-overlay" id="loginModal">
-    <div class="modal-card">
-        <div class="modal-header">
-            <h3><i data-lucide="lock-keyhole"></i> Вход в систему</h3>
-            <button class="modal-close" onclick="closeLogin()" aria-label="Закрыть окно"><i data-lucide="x"></i></button>
-        </div>
-        <p class="modal-subtitle">Для студентов, преподавателей и сотрудников университета</p>
-        <label for="loginInput">Логин</label>
-        <input type="text" id="loginInput" placeholder="Введите логин">
-        <label for="passwordInput">Пароль</label>
-        <input type="password" id="passwordInput" placeholder="Введите пароль">
-        <div class="confirm-error" id="loginError"></div>
-        <div class="demo-hint">
-            <b>Демо-доступы:</b><br>
-            студент: <b>ivanov</b> / stud2026<br>
-            преподаватель: <b>petrova</b> / teach2026<br>
-            администратор: <b>admin</b> / admin2026<br><br>
-            💡 <i>Также можно ввести любой существующий <b>student_id_number</b> (например, ST-00002) или часть <b>ФИО</b> преподавателя/админа из базы данных!</i>
-        </div>
-        <button class="btn-confirm" onclick="doLogin()">
-            <i data-lucide="log-in"></i> Войти
-        </button>
-    </div>
-</div>
-
-<script src="script.js"></script>
-<script>lucide.createIcons();</script>
+    <!-- Подключение основного скрипта -->
+    <script src="/static/script.js"></script>
+    
+    <!-- Инициализация иконок при загрузке (дублирующая страховка, если JS не сработает сразу) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
 </body>
 </html>

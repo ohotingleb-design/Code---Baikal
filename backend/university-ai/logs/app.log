@@ -1,0 +1,13 @@
+2026-08-27 02:15:27,130 | INFO | 🚀 СЕРВЕР ЗАПУЩЕН. Логи пишутся в папку /logs/app.log
+2026-08-27 02:15:53,080 | WARNING | Redis not available: Error 10061 connecting to 127.0.0.1:6379. Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение.. Running without cache.
+2026-08-27 02:15:53,082 | INFO | PostgreSQL connection pool created (min=5, max=50)
+2026-08-27 02:16:15,491 | INFO | 🚀 СЕРВЕР ЗАПУЩЕН. Логи пишутся в папку /logs/app.log
+2026-08-27 02:16:43,392 | INFO | 🚀 СЕРВЕР ЗАПУЩЕН. Логи пишутся в папку /logs/app.log
+2026-08-27 02:19:59,913 | INFO | 🚀 СЕРВЕР ЗАПУЩЕН. Логи пишутся в папку: logs/app.log
+2026-08-27 02:20:08,844 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на «Экономике»?
+2026-08-27 02:20:09,998 | ERROR | LLM error: Error code: 400 - {'error': {'message': 'Failed to parse model URI', 'type': 'invalid_request_error'}}
+2026-08-27 02:20:58,857 | INFO | Admin requested logs: 8 lines
+2026-08-27 02:21:02,484 | INFO | Admin requested logs: 9 lines
+2026-08-27 02:22:28,862 | INFO | 🚀 СЕРВЕР ЗАПУЩЕН. Логи пишутся в папку: logs/app.log
+2026-08-27 02:22:47,012 | INFO | Question from 127.0.0.1 (role=admin): Сколько студентов обучается на факультете ИТ?
+2026-08-27 02:22:48,087 | ERROR | LLM error: Error code: 400 - {'error': {'message': 'Failed to parse model URI', 'type': 'invalid_request_error'}}

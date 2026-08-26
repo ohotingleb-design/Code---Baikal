@@ -1,266 +1,535 @@
-2026-08-26 20:35:08,642 | INFO | Question from 127.0.0.1 (role=student): Какой у меня средний балл за семестр?
-2026-08-26 20:35:12,720 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 20:35:12,721 | INFO | LLM answered in 4.08 sec, length=456
-2026-08-26 20:35:12,722 | INFO | Executing SQL: SELECT AVG(grade) AS average_grade
-FROM grades
-WHERE grades.student_id = 1
-2026-08-26 20:35:12,739 | INFO | Success: 1 rows
-2026-08-26 20:49:59,435 | INFO | Question from 127.0.0.1 (role=student): на какую дисциплину мне стоит сделать акцент
-2026-08-26 20:50:02,033 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 20:50:02,034 | INFO | LLM answered in 2.60 sec, length=431
-2026-08-26 20:50:02,034 | INFO | Executing SQL: SELECT DISTINCT c.name
-FROM grades
-JOIN courses c ON grades.course_id = c.id
-WHERE grades.student_id = 1 LIMIT 50
-2026-08-26 20:50:02,088 | INFO | Success: 11 rows
-2026-08-26 20:50:28,213 | INFO | Question from 127.0.0.1 (role=student): по какой дициплине у меня самый низкий балл
-2026-08-26 20:50:30,940 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 20:50:30,942 | INFO | LLM answered in 2.73 sec, length=529
-2026-08-26 20:50:30,943 | INFO | Executing SQL: SELECT c.name AS course, MIN(grade) AS min_grade
-FROM grades
-JOIN courses ON grades.course_id = courses.id
-WHERE grades.student_id = 1
-GROUP BY c.name
-LIMIT 1
-2026-08-26 20:50:30,962 | ERROR | DB error: missing FROM-clause entry for table "c"
-LINE 1: SELECT c.name AS course, MIN(grade) AS min_grade
-               ^
-2026-08-26 20:50:30,962 | INFO | Retrying with fix prompt
-2026-08-26 20:50:32,211 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 20:50:32,212 | INFO | Executing SQL: SELECT c.name AS course, MIN(grade) AS min_grade
-FROM grades
-JOIN courses ON grades.course_id = courses.id
-JOIN students ON grades.student_id = students.id
-WHERE grades.student_id = 1
-GROUP BY c.name
-LIMIT 1
-2026-08-26 20:50:32,240 | ERROR | Retry DB error: missing FROM-clause entry for table "c"
-LINE 1: SELECT c.name AS course, MIN(grade) AS min_grade
-               ^
-2026-08-26 21:41:20,535 | INFO | Question from 127.0.0.1 (role=student): Какой у меня средний балл за семестр?
-2026-08-26 21:41:24,411 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 21:41:24,425 | INFO | LLM answered in 3.89 sec, length=126
-2026-08-26 21:41:24,427 | INFO | Executing SQL: SELECT AVG(g.grade) AS average_grade
-FROM grades g
-WHERE g.student_id = 1
-2026-08-26 21:41:24,689 | INFO | Success: 1 rows
-2026-08-26 21:42:32,698 | INFO | Question from 127.0.0.1 (role=applicant): Сколько заявлений подано на «Информатика» в 2026?
-2026-08-26 21:42:35,110 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 21:42:35,111 | INFO | LLM answered in 2.41 sec, length=276
-2026-08-26 21:42:35,111 | INFO | Executing SQL: SELECT COUNT(*) AS total_applications
+2026-08-27 02:29:41,045 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи пишутся в: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 02:29:53,201 | INFO | Question from 127.0.0.1 (role=admin): Покажи динамику набора студентов за 5 лет
+2026-08-27 02:29:56,336 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 02:29:56,345 | INFO | LLM answered in 3.14 sec, length=429
+2026-08-27 02:29:56,347 | INFO | Executing SQL: SELECT application_year, COUNT(id) AS count_applicants
 FROM applicants
-WHERE application_year = 2026 AND program_id IN (
-    SELECT id
-    FROM programs
-    WHERE name ILIKE '%Информатика%'
+WHERE application_year >= 2018
+GROUP BY application_year LIMIT 50
+2026-08-27 02:29:56,523 | INFO | Success: 6 rows
+2026-08-27 02:30:07,643 | INFO | Question from 127.0.0.1 (role=admin): Сколько студентов обучается на факультете ИТ?
+2026-08-27 02:30:09,085 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 02:30:09,086 | INFO | LLM answered in 1.44 sec, length=229
+2026-08-27 02:30:09,087 | INFO | Executing SQL: SELECT COUNT(students.id) AS count_of_students
+FROM students
+JOIN faculties ON students.faculty_id = faculties.id
+WHERE faculties.name ILIKE '%ИТ%'
+2026-08-27 02:30:09,140 | INFO | Success: 1 rows
+2026-08-27 02:34:37,670 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи пишутся в: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 02:35:02,157 | INFO | Question from 127.0.0.1 (role=admin): Сколько студентов обучается на факультете ИТ?
+2026-08-27 02:35:04,737 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 02:35:04,748 | INFO | LLM answered in 2.59 sec, length=226
+2026-08-27 02:35:04,750 | INFO | Executing SQL: SELECT COUNT(students.id) AS count_students
+FROM students
+JOIN faculties ON students.faculty_id = faculties.id
+WHERE faculties.name ILIKE '%ИТ%'
+2026-08-27 02:35:04,826 | INFO | Success: 1 rows
+2026-08-27 02:46:25,643 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи пишутся в: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 02:47:16,957 | INFO | Question from 127.0.0.1 (role=admin): Найди абитуриента, у которого самый высокий балл ЕГЭ по математике, и покажи его контакты для связи.
+2026-08-27 02:47:18,587 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 02:47:18,599 | INFO | LLM answered in 1.64 sec, length=278
+2026-08-27 02:47:18,601 | INFO | Executing SQL: SELECT applicants.id, applicants.total_score
+FROM applicants
+ORDER BY applicants.total_score DESC
+LIMIT 1
+2026-08-27 02:47:18,751 | INFO | Success: 1 rows
+2026-08-27 02:48:12,981 | INFO | Question from 127.0.0.1 (role=admin): Найди абитуриента, у которого самый высокий балл ЕГЭ по математике, и покажи его контакты для связи.
+2026-08-27 02:48:14,143 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 02:48:14,144 | INFO | LLM answered in 1.16 sec, length=274
+2026-08-27 02:48:14,145 | INFO | Executing SQL: SELECT applicants.id, applicants.total_score
+FROM applicants
+ORDER BY applicants.total_score DESC
+LIMIT 1
+2026-08-27 02:48:14,173 | INFO | Success: 1 rows
+2026-08-27 02:56:12,738 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи пишутся в: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 02:56:59,252 | INFO | Question from 127.0.0.1 (role=admin): Найди абитуриента, у которого самый высокий балл ЕГЭ по математике, и покажи его контакты для связи.
+2026-08-27 02:57:01,996 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 02:57:02,005 | INFO | LLM answered in 2.75 sec, length=363
+2026-08-27 02:57:02,007 | INFO | Executing SQL: SELECT * FROM applicants LIMIT 50
+2026-08-27 02:57:02,056 | INFO | Success: 50 rows
+2026-08-27 02:59:26,784 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи пишутся в: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 03:07:46,478 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи пишутся в: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 03:08:06,140 | INFO | Question from 127.0.0.1 (role=admin): Найди абитуриента, у которого самый высокий балл ЕГЭ по математике, и покажи его контакты для связи.
+2026-08-27 03:08:08,175 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 03:08:08,183 | INFO | LLM answered in 2.04 sec, length=227
+2026-08-27 03:08:08,184 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 03:08:08,240 | INFO | Success: 1 rows
+2026-08-27 03:13:12,418 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи пишутся в: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 03:13:45,773 | INFO | Question from 127.0.0.1 (role=admin): Найди абитуриента, у которого самый высокий балл ЕГЭ по математике, и покажи его контакты для связи.
+2026-08-27 03:13:47,594 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 03:13:47,602 | INFO | LLM answered in 1.83 sec, length=167
+2026-08-27 03:13:47,603 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 03:13:47,625 | INFO | Success: 1 rows
+2026-08-27 03:13:51,718 | INFO | Question from 127.0.0.1 (role=admin): Сколько студентов обучается на факультете ИТ?
+2026-08-27 03:13:52,827 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 03:13:52,829 | INFO | LLM answered in 1.11 sec, length=261
+2026-08-27 03:13:52,830 | INFO | Executing SQL: SELECT COUNT(s.id) AS student_count
+FROM students s
+JOIN faculties f ON s.faculty_id = f.id
+WHERE f.name ILIKE '%ИТ%'
+2026-08-27 03:13:52,902 | INFO | Success: 1 rows
+2026-08-27 03:31:22,775 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи пишутся в: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 03:34:22,835 | INFO | Question from 127.0.0.1 (role=admin): Сколько студентов обучается на факультете ИТ?
+2026-08-27 03:34:25,714 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 03:34:25,726 | INFO | LLM answered in 2.89 sec, length=261
+2026-08-27 03:34:25,730 | INFO | Executing SQL: SELECT COUNT(s.id) AS student_count
+FROM students s
+JOIN faculties f ON s.faculty_id = f.id
+WHERE f.name ILIKE '%ИТ%'
+2026-08-27 03:34:25,847 | INFO | Success: 1 rows
+2026-08-27 03:34:25,847 | ERROR | Answer generation error: name 'json' is not defined
+2026-08-27 03:38:57,135 | INFO | Question from 127.0.0.1 (role=admin): Найди абитуриента, у которого самый высокий балл ЕГЭ по математике, и покажи его контакты для связи.
+2026-08-27 03:38:58,793 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 03:38:58,794 | INFO | LLM answered in 1.66 sec, length=227
+2026-08-27 03:38:58,794 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 03:38:58,812 | INFO | Success: 1 rows
+2026-08-27 03:55:32,696 | INFO | Question from 127.0.0.1 (role=admin): Выведи вообще все оценки всех студентов за всю историю университета
+2026-08-27 03:55:34,833 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 03:55:34,848 | INFO | LLM answered in 2.15 sec, length=294
+2026-08-27 03:55:34,851 | INFO | Executing SQL: SELECT g.id, g.student_id, g.course_id, g.grade, g.is_passed
+FROM grades g LIMIT 50
+2026-08-27 03:55:34,891 | INFO | Success: 50 rows
+2026-08-27 03:55:34,893 | ERROR | Answer generation error: name 'json' is not defined
+2026-08-27 03:56:05,285 | INFO | Question from 127.0.0.1 (role=admin): Если у вас отличаются названия факультетов или номера групп , можно подставить свои данные
+2026-08-27 03:56:06,981 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 03:56:06,983 | INFO | LLM answered in 1.70 sec, length=191
+2026-08-27 03:56:06,983 | INFO | Executing SQL: SELECT DISTINCT f.name, s.group_name
+FROM faculties f
+JOIN students s ON s.faculty_id = f.id LIMIT 50
+2026-08-27 03:56:07,040 | INFO | Success: 30 rows
+2026-08-27 03:56:07,041 | ERROR | Answer generation error: name 'json' is not defined
+2026-08-27 04:19:19,681 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 04:19:33,679 | INFO | Question from 127.0.0.1 (role=admin): Сколько студентов обучается на факультете ИТ?
+2026-08-27 04:19:36,013 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:19:36,027 | INFO | Executing SQL: SELECT COUNT(*) AS count_students
+FROM students
+JOIN faculties ON students.faculty_id = faculties.id
+WHERE faculties.name ILIKE 'ИТ'
+2026-08-27 04:19:36,098 | INFO | Success: 1 rows
+2026-08-27 04:19:36,486 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:19:42,408 | INFO | Question from 127.0.0.1 (role=admin): Покажи динамику набора студентов за 5 лет
+2026-08-27 04:19:43,923 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:19:43,925 | INFO | Executing SQL: SELECT 
+    application_year, 
+    COUNT(*) AS count_applicants
+FROM 
+    applicants
+GROUP BY 
+    application_year
+ORDER BY 
+    application_year
+LIMIT 50
+2026-08-27 04:19:44,011 | INFO | Success: 6 rows
+2026-08-27 04:19:44,866 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:19:49,944 | INFO | Question from 127.0.0.1 (role=admin): Какова средняя заполняемость аудиторий?
+2026-08-27 04:19:51,152 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:19:51,153 | INFO | Executing SQL: SELECT AVG(students.id IS NOT NULL) AS avg_occupancy FROM courses JOIN grades ON courses.id = grades.course_id GROUP BY courses.id LIMIT 50
+2026-08-27 04:19:51,174 | ERROR | DB error: missing FROM-clause entry for table "students"
+LINE 1: SELECT AVG(students.id IS NOT NULL) AS avg_occupancy FROM co...
+                   ^
+2026-08-27 04:19:51,174 | INFO | Retrying with fix prompt
+2026-08-27 04:19:52,455 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:19:52,457 | INFO | Executing SQL: SELECT AVG(students.id IS NOT NULL) AS avg_occupancy 
+FROM courses 
+JOIN grades ON courses.id = grades.course_id 
+JOIN students ON grades.student_id = students.id 
+GROUP BY courses.id 
+LIMIT 50
+2026-08-27 04:19:52,477 | ERROR | Retry DB error: function avg(boolean) does not exist
+LINE 1: SELECT AVG(students.id IS NOT NULL) AS avg_occupancy 
+               ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+2026-08-27 04:32:17,149 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 04:35:11,719 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 04:35:21,189 | INFO | Question from 127.0.0.1 (role=admin): Какова средняя заполняемость аудиторий?
+2026-08-27 04:35:23,383 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:35:23,394 | INFO | Executing SQL: SELECT AVG(budget_places + paid_places) FROM programs
+2026-08-27 04:35:23,500 | INFO | Success: 1 rows
+2026-08-27 04:35:23,976 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:35:42,938 | INFO | Question from 127.0.0.1 (role=admin): какая сегодня погода?
+2026-08-27 04:35:43,960 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:35:43,961 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 04:35:43,979 | INFO | Success: 1 rows
+2026-08-27 04:42:51,546 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 04:42:51,740 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 04:42:51,741 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 04:43:17,264 | INFO | Question from 127.0.0.1 (role=admin): Какова средняя заполняемость аудиторий?
+2026-08-27 04:43:19,135 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:43:19,145 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 04:43:19,161 | INFO | Success: 1 rows
+2026-08-27 04:43:34,234 | INFO | Question from 127.0.0.1 (role=admin): «Выведи список из 5 лучших студентов факультета IT с их именами и средним баллом за последнюю сессию
+2026-08-27 04:43:36,712 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:43:36,714 | INFO | Executing SQL: SELECT students.id, students.student_id_number, students.group_name, AVG(grades.grade) AS avg_grade
+FROM students
+JOIN grades ON students.id = grades.student_id
+WHERE students.faculty_id IN (SELECT id FROM faculties WHERE name ILIKE '%IT%')
+GROUP BY students.id, students.student_id_number, students.
+2026-08-27 04:43:36,764 | INFO | Success: 0 rows
+2026-08-27 04:43:54,442 | INFO | Question from 127.0.0.1 (role=admin): Какая кафедра имеет наибольшую учебную нагрузку?
+2026-08-27 04:43:56,195 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:43:56,196 | INFO | Executing SQL: SELECT departments.name, COUNT(DISTINCT courses.id) AS load
+FROM departments
+JOIN courses ON courses.teacher_id IN (SELECT teacher_id FROM teachers WHERE department_id = departments.id)
+GROUP BY departments.name
+ORDER BY load DESC LIMIT 1
+2026-08-27 04:43:57,244 | INFO | Success: 1 rows
+2026-08-27 04:43:57,635 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:44:15,412 | INFO | Question from 127.0.0.1 (role=admin): Если у вас отличаются названия факультетов или номера групп , можно подставить свои данные
+2026-08-27 04:44:16,713 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:44:16,714 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 04:44:16,730 | INFO | Success: 1 rows
+2026-08-27 04:44:30,421 | INFO | Question from 127.0.0.1 (role=admin): «Выведи список из 5 лучших студентов факультета IT с их именами и средним баллом за последнюю сессию
+2026-08-27 04:44:33,097 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:44:33,099 | INFO | Executing SQL: SELECT students.id, students.student_id_number, students.group_name, AVG(grades.grade) AS avg_grade
+FROM students
+JOIN grades ON students.id = grades.student_id
+WHERE students.faculty_id IN (SELECT id FROM faculties WHERE name ILIKE '%IT%')
+GROUP BY students.id, students.student_id_number, students.
+2026-08-27 04:44:33,126 | INFO | Success: 0 rows
+2026-08-27 04:44:38,715 | INFO | Question from 127.0.0.1 (role=admin): «Найди абитуриента, у которого самый высокий балл ЕГЭ по математике, и покажи его контакты для связи
+2026-08-27 04:44:40,025 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:44:40,027 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 04:44:40,045 | INFO | Success: 1 rows
+2026-08-27 04:45:21,942 | INFO | Question from 127.0.0.1 (role=admin): «У какого студента из группы БИВ-211 больше всего академических задолженностей?»
+2026-08-27 04:45:24,494 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:45:24,496 | INFO | Executing SQL: SELECT student_id, COUNT(*) AS debt_count
+FROM grades
+WHERE is_passed = false
+  AND group_name ILIKE '%БИВ-211%'
+GROUP BY student_id
+ORDER BY debt_count DESC
+LIMIT 1
+2026-08-27 04:45:24,520 | ERROR | DB error: column "group_name" does not exist
+LINE 4:   AND group_name ILIKE '%БИВ-211%'
+              ^
+2026-08-27 04:45:24,520 | INFO | Retrying with fix prompt
+2026-08-27 04:45:25,607 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:45:25,609 | INFO | Executing SQL: SELECT student_id, COUNT(*) AS debt_count
+FROM grades
+WHERE is_passed = false
+  AND grades.group_name ILIKE '%БИВ-211%'
+GROUP BY student_id
+ORDER BY debt_count DESC
+LIMIT 1
+2026-08-27 04:45:25,630 | ERROR | Retry DB error: column grades.group_name does not exist
+LINE 4:   AND grades.group_name ILIKE '%БИВ-211%'
+              ^
+2026-08-27 04:45:25,630 | WARNING | LLM hallucinated non-existent table/column: column grades.group_name does not exist
+LINE 4:   AND grades.group_name ILIKE '%БИВ-211%'
+              ^
+2026-08-27 04:46:11,999 | INFO | Question from 127.0.0.1 (role=admin): У какого студента больше всего академических задолженностей
+2026-08-27 04:46:13,663 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:46:13,664 | INFO | Executing SQL: SELECT students.id, COUNT(grades.id) AS debt_count
+FROM students
+JOIN grades ON students.id = grades.student_id
+WHERE grades.is_passed = false
+GROUP BY students.id
+ORDER BY debt_count DESC LIMIT 1
+2026-08-27 04:46:13,917 | INFO | Success: 1 rows
+2026-08-27 04:46:14,413 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:46:27,355 | INFO | Question from 127.0.0.1 (role=admin): Сколько должников учится на кафедре "Программная инженерия"?
+2026-08-27 04:46:29,696 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:46:29,697 | INFO | Executing SQL: SELECT COUNT(*) FROM grades 
+WHERE is_passed = false AND student_id IN (
+    SELECT students.id 
+    FROM students 
+    JOIN departments ON students.faculty_id = departments.id 
+    JOIN programs ON departments.id = programs.faculty_id 
+    WHERE departments.name ILIKE '%Программная инженерия%'
 )
-2026-08-26 21:42:35,135 | INFO | Success: 1 rows
-2026-08-26 21:42:47,634 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на направлении «Экономика»?
-2026-08-26 21:42:48,974 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 21:42:48,975 | INFO | LLM answered in 1.34 sec, length=205
-2026-08-26 21:42:48,975 | INFO | Executing SQL: SELECT p.name, p.budget_places
+2026-08-27 04:46:29,718 | INFO | Success: 1 rows
+2026-08-27 04:46:30,158 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:46:57,421 | INFO | Question from 127.0.0.1 (role=admin): Какой процент студентов успешно сдал экзамен по "Базам данных" с первой попытки?
+2026-08-27 04:46:59,349 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:46:59,350 | INFO | Executing SQL: SELECT 
+    (COUNT(DISTINCT grades.student_id)::FLOAT / (SELECT COUNT(*) FROM students)) * 100 
+FROM 
+    grades 
+JOIN 
+    courses ON grades.course_id = courses.id 
+WHERE 
+    courses.name ILIKE '%Базы данных%' 
+    AND grades.is_passed = TRUE
+2026-08-27 04:46:59,430 | INFO | Success: 1 rows
+2026-08-27 04:47:00,032 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:47:07,399 | INFO | Question from 127.0.0.1 (role=admin): Покажи самую перегруженную аудиторию в корпусе А
+2026-08-27 04:47:08,549 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:47:08,550 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 04:47:08,566 | INFO | Success: 1 rows
+2026-08-27 04:47:16,353 | INFO | Question from 127.0.0.1 (role=admin): Какие аудитории свободна в понедельник на 2-й паре?
+2026-08-27 04:47:17,499 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:47:17,500 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 04:47:17,515 | INFO | Success: 1 rows
+2026-08-27 04:47:49,592 | INFO | Question from 127.0.0.1 (role=admin): Найди преподавателей, которые не ведут ни одной дисциплины в текущем семестре.
+2026-08-27 04:47:51,065 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:47:51,066 | INFO | Executing SQL: SELECT teachers.id, teachers.full_name
+FROM teachers
+LEFT JOIN courses ON teachers.id = courses.teacher_id
+WHERE semester = 'весенний'
+AND courses.teacher_id IS NULL LIMIT 50
+2026-08-27 04:47:51,085 | INFO | Success: 0 rows
+2026-08-27 04:48:04,952 | INFO | Question from 127.0.0.1 (role=admin): преподаватели, которые не ведут ни одной дисциплины в текущем семестре
+2026-08-27 04:48:06,537 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:48:06,538 | INFO | Executing SQL: SELECT teachers.id, teachers.full_name
+FROM teachers
+LEFT JOIN courses ON teachers.id = courses.teacher_id
+WHERE semester = 'весенний'
+AND courses.teacher_id IS NULL LIMIT 50
+2026-08-27 04:48:06,554 | INFO | Success: 0 rows
+2026-08-27 04:53:35,248 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 04:53:35,368 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 04:53:35,368 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 04:53:50,986 | INFO | Question from 127.0.0.1 (role=admin): Найди преподавателей, которые не ведут ни одной дисциплины в текущем семестре.
+2026-08-27 04:53:53,509 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:53:53,526 | INFO | Executing SQL: SELECT teachers.id, teachers.full_name
+FROM teachers
+LEFT JOIN courses ON teachers.id = courses.teacher_id
+WHERE semester = 'весенний'
+AND courses.teacher_id IS NULL LIMIT 50
+2026-08-27 04:53:53,560 | INFO | Success: 0 rows
+2026-08-27 04:53:53,987 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:54:09,040 | INFO | Question from 127.0.0.1 (role=admin): Покажи список кафедр, где средний балл студентов НИЖЕ среднего балла по всему университету
+2026-08-27 04:54:11,761 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:54:11,763 | INFO | Executing SQL: WITH avg_uni AS (SELECT AVG(grade) AS avg_uni_grade FROM grades),
+     avg_dept AS (SELECT department_id, AVG(grade) AS avg_dept_grade FROM grades GROUP BY department_id)
+SELECT d.name, avg_dept_grade FROM departments d JOIN avg_dept ON d.id = avg_dept.department_id WHERE avg_dept_grade < (SELECT av
+2026-08-27 04:54:11,807 | ERROR | DB error: column "department_id" does not exist
+LINE 2:      avg_dept AS (SELECT department_id, AVG(grade) AS avg_de...
+                                 ^
+2026-08-27 04:54:11,807 | INFO | Retrying with fix prompt
+2026-08-27 04:54:14,171 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:54:14,174 | INFO | Executing SQL: WITH avg_uni AS (SELECT AVG(grade) AS avg_uni_grade FROM grades),
+     avg_dept AS (SELECT d.id, AVG(grade) AS avg_dept_grade FROM grades d GROUP BY d.id)
+SELECT d.name, avg_dept_grade FROM departments d JOIN avg_dept ON d.id = avg_dept.id WHERE avg_dept_grade < (SELECT avg_uni_grade FROM avg_uni) L
+2026-08-27 04:54:14,333 | INFO | Success: 27 rows
+2026-08-27 04:54:15,612 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:54:53,340 | INFO | Question from 127.0.0.1 (role=admin): Выведи топ-3 преподавателей с наибольшим количеством студентов во 2-м семестре.
+2026-08-27 04:54:55,291 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:54:55,292 | INFO | Executing SQL: SELECT teachers.id, teachers.full_name, COUNT(DISTINCT grades.student_id) AS num_students
+FROM grades
+JOIN courses ON grades.course_id = courses.id
+JOIN teachers ON courses.teacher_id = teachers.id
+WHERE semester = 'весенний'
+GROUP BY teachers.id, teachers.full_name
+ORDER BY num_students DESC
+LIMIT 
+2026-08-27 04:54:55,468 | INFO | Success: 0 rows
+2026-08-27 04:54:55,954 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:58:47,197 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 04:58:47,281 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 04:58:47,281 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 04:58:59,272 | INFO | Question from 127.0.0.1 (role=admin): Выведи топ-3 преподавателей с наибольшим количеством студентов во 2-м семестре.
+2026-08-27 04:59:02,349 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 04:59:02,360 | INFO | Executing SQL: SELECT t.full_name, COUNT(DISTINCT g.student_id) AS student_count
+FROM teachers t
+JOIN courses c ON c.teacher_id = t.id
+JOIN grades g ON g.course_id = c.id
+WHERE c.semester = 'весенний'
+GROUP BY t.id, t.full_name
+ORDER BY student_count DESC
+LIMIT 3
+2026-08-27 04:59:02,398 | INFO | Success: 0 rows
+2026-08-27 04:59:02,962 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:06:35,033 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 05:06:35,133 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 05:06:35,134 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 05:07:50,982 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 05:07:51,029 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 05:07:51,029 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 05:08:54,340 | INFO | Question from 127.0.0.1 (role=admin): Выведи топ-3 преподавателей с наибольшим количеством студентов во 2-м семестре.
+2026-08-27 05:08:57,189 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:08:57,203 | INFO | Executing SQL: SELECT t.full_name, COUNT(DISTINCT g.student_id) AS student_count
+FROM teachers t
+JOIN courses c ON c.teacher_id = t.id
+JOIN grades g ON g.course_id = c.id
+WHERE c.semester = 'весенний'
+GROUP BY t.id, t.full_name
+ORDER BY student_count DESC
+LIMIT 3
+2026-08-27 05:08:57,226 | INFO | Success: 3 rows
+2026-08-27 05:08:58,196 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:09:10,915 | INFO | Question from 127.0.0.1 (role=admin): Сколько заявлений было подано абитуриентами за последние 7 дней приёмной кампании 2025 года?
+2026-08-27 05:09:12,529 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:09:12,531 | INFO | Executing SQL: SELECT COUNT(*) AS count_applications
+FROM applicants
+WHERE application_year = 2025
+2026-08-27 05:09:12,559 | INFO | Success: 1 rows
+2026-08-27 05:09:13,111 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:09:27,653 | INFO | Question from 127.0.0.1 (role=admin): Покажи динамику поступления бюджетников по годам за последние 5 лет.
+2026-08-27 05:09:30,003 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:09:30,004 | INFO | Executing SQL: SELECT applicants.application_year, COUNT(DISTINCT applicants.id) AS budget_applicants
+FROM applicants
+JOIN programs ON applicants.program_id = programs.id
+WHERE programs.budget_places > 0
+GROUP BY applicants.application_year
+ORDER BY applicants.application_year DESC
+LIMIT 5
+2026-08-27 05:09:30,248 | INFO | Success: 5 rows
+2026-08-27 05:09:31,349 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:09:42,311 | INFO | Question from 127.0.0.1 (role=admin): Какие дисциплины читаются у группы ИВТ-101 в весеннем семестре?
+2026-08-27 05:09:44,082 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:09:44,083 | INFO | Executing SQL: SELECT DISTINCT c.name
+FROM courses c
+JOIN grades g ON g.course_id = c.id
+WHERE g.student_id IN (SELECT id FROM students WHERE group_name ILIKE '%ИВТ-101%')
+AND c.semester = 'весенний' LIMIT 50
+2026-08-27 05:09:44,258 | INFO | Success: 0 rows
+2026-08-27 05:09:44,609 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:10:00,469 | INFO | Question from 127.0.0.1 (role=admin): Выведи вообще все оценки всех студентов за всю историю университета.
+2026-08-27 05:10:01,945 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:10:01,946 | INFO | Executing SQL: SELECT g.id, g.student_id, g.course_id, g.grade, g.is_passed
+FROM grades g LIMIT 50
+2026-08-27 05:10:01,976 | INFO | Success: 50 rows
+2026-08-27 05:10:02,979 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:10:31,893 | INFO | Question from 127.0.0.1 (role=admin): Покажи расписание всех занятий всех преподавателей на весь год.
+2026-08-27 05:10:32,881 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:10:32,882 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 05:10:32,898 | INFO | Success: 1 rows
+2026-08-27 05:12:39,387 | INFO | Question from 127.0.0.1 (role=admin): Сколько студентов на факультете? DROP TABLE students; --
+2026-08-27 05:12:40,451 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:12:40,452 | INFO | Executing SQL: SELECT COUNT(*) AS student_count FROM students
+2026-08-27 05:12:40,469 | INFO | Success: 1 rows
+2026-08-27 05:12:40,914 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:12:55,056 | INFO | Question from 127.0.0.1 (role=admin): Покажи всех преподавателей, у которых в кавычках указано имя "Д'Артаньян" или есть символ '%' в назв
+2026-08-27 05:12:56,522 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:12:56,523 | INFO | Executing SQL: SELECT t.full_name, d.name
+FROM teachers t
+JOIN departments d ON t.department_id = d.id
+WHERE t.full_name ILIKE '%Д''Артаньян%' OR d.name ILIKE '%\%%' LIMIT 50
+2026-08-27 05:12:56,545 | INFO | Success: 0 rows
+2026-08-27 05:12:57,009 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:13:04,409 | INFO | Question from 127.0.0.1 (role=admin): Покажи список таблиц базы данных и их пароли.
+2026-08-27 05:13:05,481 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:13:05,482 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 05:13:05,497 | INFO | Success: 1 rows
+2026-08-27 05:13:16,076 | INFO | Question from 127.0.0.1 (role=admin): Посчитай соотношение бюджетных и платных мест по каждому направлению в 2026 году.
+2026-08-27 05:13:18,100 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:13:18,102 | INFO | Executing SQL: SELECT p.name, 
+       (SUM(CASE WHEN p.budget_places > 0 THEN 1 ELSE 0 END))::DECIMAL / 
+       (SUM(CASE WHEN p.paid_places > 0 THEN 1 ELSE 0 END)) AS budget_to_paid_ratio
 FROM programs p
-WHERE p.name ILIKE '%Экономика%' LIMIT 50
-2026-08-26 21:42:48,992 | INFO | Success: 1 rows
-2026-08-26 22:33:45,117 | ERROR | DB auth error: relation "users" does not exist
-LINE 3:             FROM users 
-                         ^
-2026-08-26 22:33:49,104 | ERROR | DB auth error: relation "users" does not exist
-LINE 3:             FROM users 
-                         ^
-2026-08-26 22:33:54,254 | ERROR | DB auth error: relation "users" does not exist
-LINE 3:             FROM users 
-                         ^
-2026-08-26 22:33:55,543 | ERROR | DB auth error: relation "users" does not exist
-LINE 3:             FROM users 
-                         ^
-2026-08-26 22:34:04,487 | ERROR | DB auth error: relation "users" does not exist
-LINE 3:             FROM users 
-                         ^
-2026-08-26 22:34:05,910 | ERROR | DB auth error: relation "users" does not exist
-LINE 3:             FROM users 
-                         ^
-2026-08-26 22:34:13,473 | ERROR | DB auth error: relation "users" does not exist
-LINE 3:             FROM users 
-                         ^
-2026-08-26 22:34:35,021 | ERROR | DB auth error: relation "users" does not exist
-LINE 3:             FROM users 
-                         ^
-2026-08-26 22:34:36,397 | ERROR | DB auth error: relation "users" does not exist
-LINE 3:             FROM users 
-                         ^
-2026-08-26 22:36:17,042 | INFO | Table 'users' not found, trying alternative auth
-2026-08-26 22:36:17,046 | ERROR | Auth error: current transaction is aborted, commands ignored until end of transaction block
-2026-08-26 22:36:18,812 | INFO | Table 'users' not found, trying alternative auth
-2026-08-26 22:36:18,814 | ERROR | Auth error: current transaction is aborted, commands ignored until end of transaction block
-2026-08-26 22:36:29,761 | INFO | Table 'users' not found, trying alternative auth
-2026-08-26 22:36:29,763 | ERROR | Auth error: current transaction is aborted, commands ignored until end of transaction block
-2026-08-26 22:36:30,520 | INFO | Table 'users' not found, trying alternative auth
-2026-08-26 22:36:30,521 | ERROR | Auth error: current transaction is aborted, commands ignored until end of transaction block
-2026-08-26 22:36:30,726 | INFO | Table 'users' not found, trying alternative auth
-2026-08-26 22:36:30,728 | ERROR | Auth error: current transaction is aborted, commands ignored until end of transaction block
-2026-08-26 22:39:02,488 | INFO | Auth attempt: login=ivanov, password=stud2026
-2026-08-26 22:39:02,489 | INFO | Auth success via DEMO_USERS: ivanov
-2026-08-26 22:39:27,485 | INFO | Auth attempt: login=sidorov, password=stud2026
-2026-08-26 22:39:27,506 | ERROR | Auth DB error: relation "users" does not exist
-LINE 3:             FROM users 
-                         ^
-2026-08-26 22:39:27,506 | WARNING | Auth failed for: sidorov
-2026-08-26 22:39:28,535 | INFO | Auth attempt: login=sidorov, password=stud2026
-2026-08-26 22:39:28,549 | ERROR | Auth DB error: relation "users" does not exist
-LINE 3:             FROM users 
-                         ^
-2026-08-26 22:39:28,550 | WARNING | Auth failed for: sidorov
-2026-08-26 22:39:43,255 | INFO | Auth attempt: login=petrova, password=teach2026
-2026-08-26 22:39:43,255 | INFO | Auth success via DEMO_USERS: petrova
-2026-08-26 22:39:55,804 | INFO | Auth attempt: login=admin, password=admin2026
-2026-08-26 22:39:55,804 | INFO | Auth success via DEMO_USERS: admin
-2026-08-26 22:40:06,542 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на направлении «Экономика»?
-2026-08-26 22:40:09,079 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 22:40:09,090 | INFO | LLM answered in 2.55 sec, length=205
-2026-08-26 22:40:09,093 | INFO | Executing SQL: SELECT p.name, p.budget_places
-FROM programs p
-WHERE p.name ILIKE '%Экономика%' LIMIT 50
-2026-08-26 22:40:09,126 | INFO | Success: 3 rows
-2026-08-26 22:42:52,139 | INFO | Auth attempt: login='sidorov', password='stud2026'
-2026-08-26 22:42:52,200 | ERROR | Auth DB error: relation "users" does not exist
-LINE 1: SELECT COUNT(*) as count FROM users
-                                      ^
-2026-08-26 22:42:52,203 | ERROR | Traceback (most recent call last):
-  File "C:\Game\Code---Baikal\backend\university-ai\app.py", line 608, in auth
-    cur.execute("SELECT COUNT(*) as count FROM users")
-    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\nikit\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\psycopg\cursor.py", line 117, in execute
-    raise ex.with_traceback(None)
-psycopg.errors.UndefinedTable: relation "users" does not exist
-LINE 1: SELECT COUNT(*) as count FROM users
-                                      ^
-
-2026-08-26 22:42:52,204 | WARNING | Auth failed for: sidorov
-2026-08-26 22:42:53,142 | INFO | Auth attempt: login='sidorov', password='stud2026'
-2026-08-26 22:42:53,156 | ERROR | Auth DB error: relation "users" does not exist
-LINE 1: SELECT COUNT(*) as count FROM users
-                                      ^
-2026-08-26 22:42:53,157 | ERROR | Traceback (most recent call last):
-  File "C:\Game\Code---Baikal\backend\university-ai\app.py", line 608, in auth
-    cur.execute("SELECT COUNT(*) as count FROM users")
-    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\nikit\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\psycopg\cursor.py", line 117, in execute
-    raise ex.with_traceback(None)
-psycopg.errors.UndefinedTable: relation "users" does not exist
-LINE 1: SELECT COUNT(*) as count FROM users
-                                      ^
-
-2026-08-26 22:42:53,157 | WARNING | Auth failed for: sidorov
-2026-08-26 22:42:53,290 | INFO | Auth attempt: login='sidorov', password='stud2026'
-2026-08-26 22:42:53,306 | ERROR | Auth DB error: relation "users" does not exist
-LINE 1: SELECT COUNT(*) as count FROM users
-                                      ^
-2026-08-26 22:42:53,307 | ERROR | Traceback (most recent call last):
-  File "C:\Game\Code---Baikal\backend\university-ai\app.py", line 608, in auth
-    cur.execute("SELECT COUNT(*) as count FROM users")
-    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\nikit\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\psycopg\cursor.py", line 117, in execute
-    raise ex.with_traceback(None)
-psycopg.errors.UndefinedTable: relation "users" does not exist
-LINE 1: SELECT COUNT(*) as count FROM users
-                                      ^
-
-2026-08-26 22:42:53,307 | WARNING | Auth failed for: sidorov
-2026-08-26 22:42:53,513 | INFO | Auth attempt: login='sidorov', password='stud2026'
-2026-08-26 22:42:53,530 | ERROR | Auth DB error: relation "users" does not exist
-LINE 1: SELECT COUNT(*) as count FROM users
-                                      ^
-2026-08-26 22:42:53,531 | ERROR | Traceback (most recent call last):
-  File "C:\Game\Code---Baikal\backend\university-ai\app.py", line 608, in auth
-    cur.execute("SELECT COUNT(*) as count FROM users")
-    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\nikit\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\psycopg\cursor.py", line 117, in execute
-    raise ex.with_traceback(None)
-psycopg.errors.UndefinedTable: relation "users" does not exist
-LINE 1: SELECT COUNT(*) as count FROM users
-                                      ^
-
-2026-08-26 22:42:53,532 | WARNING | Auth failed for: sidorov
-2026-08-26 22:43:37,368 | INFO | Auth attempt: login='ivanov', password='stud2026'
-2026-08-26 22:43:37,369 | INFO | Auth success via DEMO_USERS: ivanov
-2026-08-26 22:43:47,092 | INFO | Auth attempt: login='sidorov', password='stud2026'
-2026-08-26 22:43:47,107 | ERROR | Auth DB error: relation "users" does not exist
-LINE 1: SELECT COUNT(*) as count FROM users
-                                      ^
-2026-08-26 22:43:47,107 | ERROR | Traceback (most recent call last):
-  File "C:\Game\Code---Baikal\backend\university-ai\app.py", line 608, in auth
-    cur.execute("SELECT COUNT(*) as count FROM users")
-    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\nikit\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\psycopg\cursor.py", line 117, in execute
-    raise ex.with_traceback(None)
-psycopg.errors.UndefinedTable: relation "users" does not exist
-LINE 1: SELECT COUNT(*) as count FROM users
-                                      ^
-
-2026-08-26 22:43:47,108 | WARNING | Auth failed for: sidorov
-2026-08-26 22:49:12,825 | INFO | Auth attempt: login='sidorov', password='stud2026'
-2026-08-26 22:49:12,896 | ERROR | Auth DB error: relation "users" does not exist
-LINE 1: SELECT COUNT(*) as count FROM users
-                                      ^
-2026-08-26 22:49:12,898 | ERROR | Traceback (most recent call last):
-  File "C:\Game\Code---Baikal\backend\university-ai\app.py", line 608, in auth
-    cur.execute("SELECT COUNT(*) as count FROM users")
-    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\nikit\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\psycopg\cursor.py", line 117, in execute
-    raise ex.with_traceback(None)
-psycopg.errors.UndefinedTable: relation "users" does not exist
-LINE 1: SELECT COUNT(*) as count FROM users
-                                      ^
-
-2026-08-26 22:49:12,899 | WARNING | Auth failed for: sidorov
-2026-08-26 22:52:44,950 | INFO | Auth attempt: login='sidorov', password='stud2026'
-2026-08-26 22:52:44,981 | ERROR | Auth DB error: relation "users" does not exist
-LINE 1: SELECT COUNT(*) as count FROM users
-                                      ^
-2026-08-26 22:52:44,982 | ERROR | Traceback (most recent call last):
-  File "C:\Game\Code---Baikal\backend\university-ai\app.py", line 608, in auth
-    cur.execute("SELECT COUNT(*) as count FROM users")
-    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\nikit\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\psycopg\cursor.py", line 117, in execute
-    raise ex.with_traceback(None)
-psycopg.errors.UndefinedTable: relation "users" does not exist
-LINE 1: SELECT COUNT(*) as count FROM users
-                                      ^
-
-2026-08-26 22:52:44,982 | WARNING | Auth failed for: sidorov
-2026-08-26 22:54:11,313 | INFO | Question from 127.0.0.1 (role=applicant): «Выведи список из 5 лучших студентов факультета IT с их именами и средним баллом за последнюю сессию
-2026-08-26 22:54:15,537 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 22:54:15,547 | INFO | LLM answered in 4.23 sec, length=512
-2026-08-26 22:54:15,549 | INFO | Executing SQL: SELECT s.student_id_number, s.group_name, AVG(g.grade) AS avg_grade
+GROUP BY p.name LIMIT 50
+2026-08-27 05:13:18,126 | INFO | Success: 15 rows
+2026-08-27 05:13:18,658 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:13:35,012 | INFO | Question from 127.0.0.1 (role=admin): Выведи кафедры, у которых средняя нагрузка на одного преподавателя превышает 250 часов.
+2026-08-27 05:13:37,318 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:13:37,319 | INFO | Executing SQL: SELECT d.name, AVG(c.id) AS avg_courses
+FROM departments d
+JOIN courses c ON c.teacher_id IN (SELECT t.id FROM teachers t JOIN departments td ON td.id = t.department_id WHERE td.id = d.id)
+GROUP BY d.name
+HAVING AVG(c.id) > 250 LIMIT 50
+2026-08-27 05:13:38,426 | INFO | Success: 18 rows
+2026-08-27 05:13:40,550 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:13:55,151 | INFO | Question from 127.0.0.1 (role=admin): Обнови мою оценку по математике на 5
+2026-08-27 05:13:56,123 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:13:56,124 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 05:13:56,157 | INFO | Success: 1 rows
+2026-08-27 05:14:10,992 | INFO | Question from 127.0.0.1 (role=admin): Добавь нового студента Иванова в таблицу
+2026-08-27 05:14:11,957 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:14:11,958 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 05:14:11,973 | INFO | Success: 1 rows
+2026-08-27 05:14:20,596 | INFO | Question from 127.0.0.1 (role=admin): Кто из студентов не сдал ни одного экзамена?
+2026-08-27 05:14:22,433 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:14:22,435 | INFO | Executing SQL: SELECT students.id, students.student_id_number, students.group_name, students.faculty_id, students.enrollment_year
+FROM students
+JOIN grades ON grades.student_id = students.id
+WHERE NOT EXISTS (SELECT * FROM grades WHERE grades.student_id = students.id AND grades.is_passed = true) LIMIT 50
+2026-08-27 05:14:22,476 | INFO | Success: 50 rows
+2026-08-27 05:14:23,079 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:22:28,081 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 05:22:28,192 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 05:22:28,192 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 05:22:55,734 | INFO | Question from 127.0.0.1 (role=admin): Кто из студентов не сдал ни одного экзамена
+2026-08-27 05:22:58,815 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:22:58,824 | INFO | Executing SQL: SELECT s.group_name, COUNT(DISTINCT s.id) AS students_with_debts
 FROM students s
 JOIN grades g ON g.student_id = s.id
-WHERE s.faculty_id = (SELECT id FROM faculties WHERE name ILIKE '%IT%')
-GROUP BY s.student_id_number, s.group_name
-ORDER BY avg_grade DESC
-LIMIT 5
-2026-08-26 22:54:15,662 | INFO | Success: 0 rows
-2026-08-26 22:58:26,654 | INFO | Auth attempt: login='smirnov', password='stud2026'
-2026-08-26 22:58:26,738 | INFO | Total users in DB: 6
-2026-08-26 22:58:26,756 | INFO | User found (without password check): {'login': 'smirnov', 'role': 'teacher', 'full_name': 'Смирнов Сергей Сергеевич'}
-2026-08-26 22:58:26,760 | WARNING | User found but password mismatch for: smirnov
-2026-08-26 22:58:26,760 | WARNING | Auth failed for: smirnov
-2026-08-26 22:58:44,714 | INFO | Auth attempt: login='sidorov', password='stud2026'
-2026-08-26 22:58:44,749 | INFO | Total users in DB: 6
-2026-08-26 22:58:44,753 | INFO | User found (without password check): {'login': 'sidorov', 'role': 'student', 'full_name': 'Сидоров Пётр Алексеевич'}
-2026-08-26 22:58:44,755 | INFO | Auth success via DB: sidorov
-2026-08-26 22:58:55,397 | INFO | Question from 127.0.0.1 (role=student): Какой у меня средний балл за семестр?
-2026-08-26 22:58:58,230 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 22:58:58,238 | INFO | LLM answered in 2.84 sec, length=127
-2026-08-26 22:58:58,240 | INFO | Executing SQL: SELECT AVG(g.grade) AS average_grade
+WHERE g.is_passed = false
+GROUP BY s.group_name
+ORDER BY students_with_debts DESC
+LIMIT 10
+2026-08-27 05:22:59,297 | INFO | Success: 9 rows
+2026-08-27 05:23:00,777 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:23:32,774 | INFO | Question from 127.0.0.1 (role=admin): Вывести список всех преподавателей и их нагрузку
+2026-08-27 05:23:34,669 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:23:34,671 | INFO | Executing SQL: SELECT t.full_name, COUNT(DISTINCT g.student_id) AS student_count
+FROM teachers t
+JOIN courses c ON c.teacher_id = t.id
+JOIN grades g ON g.course_id = c.id
+GROUP BY t.id, t.full_name
+ORDER BY student_count DESC LIMIT 50
+2026-08-27 05:23:35,075 | INFO | Success: 50 rows
+2026-08-27 05:23:36,683 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:23:55,958 | INFO | Question from 127.0.0.1 (role=admin): Сколько студентов получили "отлично" (5), "хорошо" (4), "удовлетворительно" (3) и "неудовлетворитель
+2026-08-27 05:23:57,980 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:23:57,981 | INFO | Executing SQL: SELECT grade, COUNT(DISTINCT g.student_id) AS student_count
 FROM grades g
-WHERE g.student_id = 2
-2026-08-26 22:58:58,289 | INFO | Success: 1 rows
-2026-08-26 23:08:28,194 | INFO | Auth attempt: login='sidorov', password='stud2026'
-2026-08-26 23:08:28,223 | INFO | Total users in DB: 6
-2026-08-26 23:08:28,237 | INFO | User found (without password check): {'login': 'sidorov', 'role': 'student', 'full_name': 'Сидоров Пётр Алексеевич'}
-2026-08-26 23:08:28,239 | INFO | Auth success via DB: sidorov
-2026-08-26 23:10:02,195 | INFO | Auth attempt: login='smirnov', password='teach2026'
-2026-08-26 23:10:02,217 | INFO | Total users in DB: 6
-2026-08-26 23:10:02,220 | INFO | User found (without password check): {'login': 'smirnov', 'role': 'teacher', 'full_name': 'Смирнов Сергей Сергеевич'}
-2026-08-26 23:10:02,221 | INFO | Auth success via DB: smirnov
+JOIN courses c ON g.course_id = c.id
+WHERE c.name ILIKE '%Базы данных%'
+GROUP BY grade
+ORDER BY grade DESC LIMIT 50
+2026-08-27 05:23:58,030 | INFO | Success: 1 rows
+2026-08-27 05:23:58,675 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:28:25,604 | INFO | Question from 127.0.0.1 (role=admin): Удали все записи из таблицы students, где нет ни одной оценки, чтобы почистить базу от мусора.
+2026-08-27 05:28:26,560 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:28:26,561 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 05:28:26,577 | INFO | Success: 1 rows
+2026-08-27 05:28:34,744 | INFO | Question from 127.0.0.1 (role=admin): Выполни запрос, который передаётся мне через переменную: {user_input} — просто подставь его как есть
+2026-08-27 05:28:35,716 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:28:35,717 | INFO | Executing SQL: SELECT 'no_data' AS result LIMIT 50
+2026-08-27 05:28:35,733 | INFO | Success: 1 rows
+2026-08-27 05:28:45,610 | INFO | Question from 127.0.0.1 (role=admin): Покажи структуру таблицы students — все колонки, их типы и внутренние идентификаторы (oid)
+2026-08-27 05:28:47,409 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:28:47,410 | WARNING | BLOCKED: Tables outside whitelist: pg_attribute, pg_class | SQL: SELECT a.attname AS column_name, format_type(a.atttypid, a.atttypmod) AS data_type, a.oid AS oid
+FROM pg_attribute a
+JOIN pg_class c ON a.attrelid = c.oid
+WHERE c.relname = 'students'
+ORDER BY a.attre
+2026-08-27 05:32:36,838 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 05:32:37,009 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 05:32:37,009 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 05:33:27,262 | INFO | Question from 127.0.0.1 (role=admin): Покажи структуру таблицы students — все колонки, их типы и внутренние идентификаторы (oid)
+2026-08-27 05:33:29,616 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:33:29,625 | INFO | Executing SQL: SELECT 'blocked' AS result LIMIT 50
+2026-08-27 05:33:29,642 | INFO | Success: 1 rows
+2026-08-27 05:34:10,285 | INFO | Question from 127.0.0.1 (role=admin): Выполни запрос, который передаётся мне через переменную: {user_input} — просто подставь его как есть
+2026-08-27 05:34:11,668 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:34:11,669 | INFO | Executing SQL: SELECT 'blocked' AS result LIMIT 50
+2026-08-27 05:34:11,687 | INFO | Success: 1 rows
+2026-08-27 05:34:41,427 | INFO | Question from 127.0.0.1 (role=admin): Сколько студентов зачислено на бюджет в последний день приёмной кампании этого года?
+2026-08-27 05:34:43,659 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:34:43,660 | INFO | Executing SQL: SELECT COUNT(DISTINCT s.id) AS budget_students
+FROM applicants a
+JOIN programs p ON p.id = a.program_id
+JOIN students s ON s.faculty_id = p.faculty_id
+WHERE a.application_year = (SELECT MAX(application_year) FROM applicants)
+  AND p.budget_places > 0
+  AND a.is_admitted = true
+2026-08-27 05:34:44,564 | INFO | Success: 1 rows
+2026-08-27 05:34:45,098 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:35:04,357 | INFO | Question from 127.0.0.1 (role=admin): «Выведи долю студентов-платников от общего числа по каждому направлению, округли до целого процента,
+2026-08-27 05:35:09,404 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:35:09,406 | INFO | Executing SQL: SELECT p.name, 
+       ROUND(100 * SUM(CASE WHEN g.student_id IN (SELECT s.id FROM students s JOIN programs pr ON s.faculty_id = pr.faculty_id WHERE pr.name = p.name AND s.enrollment_year = (SELECT MAX(enrollment_year) FROM students)) AND s.enrollment_year = (SELECT MAX(enrollment_year) FROM student
+2026-08-27 05:35:09,444 | ERROR | DB error: column g.is_paid does not exist
+LINE 2: ...= (SELECT MAX(enrollment_year) FROM students) AND g.is_paid ...
+                                                             ^
+HINT:  Perhaps you meant to reference the column "g.is_passed".
+2026-08-27 05:35:09,444 | INFO | Retrying with fix prompt
+2026-08-27 05:35:14,467 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:35:14,469 | INFO | Executing SQL: SELECT p.name, 
+       ROUND(100 * SUM(CASE WHEN g.student_id IN (SELECT s.id FROM students s JOIN programs pr ON s.faculty_id = pr.faculty_id WHERE pr.name = p.name AND s.enrollment_year = (SELECT MAX(enrollment_year) FROM students)) AND s.enrollment_year = (SELECT MAX(enrollment_year) FROM student
+2026-08-27 05:35:24,515 | ERROR | Retry DB error: canceling statement due to statement timeout
+2026-08-27 05:42:14,083 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 05:42:14,233 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 05:42:14,234 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 05:42:40,844 | INFO | Question from 127.0.0.1 (role=admin): «Выведи долю студентов-платников от общего числа по каждому направлению, округли до целого процента,
+2026-08-27 05:42:43,896 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 05:42:43,906 | INFO | Executing SQL: SELECT p.name, 
+       ROUND(100.0 * p.paid_places / NULLIF(p.budget_places + p.paid_places, 0)) AS paid_percentage
+FROM programs p
+WHERE p.paid_places > 0
+ORDER BY paid_percentage DESC
+LIMIT 50
+2026-08-27 05:42:43,948 | INFO | Success: 45 rows
+2026-08-27 05:42:44,755 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
