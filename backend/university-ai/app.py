@@ -160,6 +160,43 @@ ORDER BY application_year DESC
 
 ВАЖНО: SQL всегда должен быть внутри тегов <sql>...</sql>. Без SQL не отвечай.
 Если вопрос не про данные БД — всё равно сгенерируй простой SQL типа SELECT 'Привет! Я готов помочь.' AS answer.
+Вопрос: "На какие дисциплины мне стоит обратить внимание?" или "По каким предметам у меня слабые оценки?"
+<sql>
+SELECT c.name AS discipline, 
+       ROUND(AVG(g.grade), 2) AS avg_grade,
+       COUNT(g.id) AS total_grades
+FROM courses c
+JOIN grades g ON g.course_id = c.id
+WHERE g.student_id = 1
+GROUP BY c.id, c.name
+ORDER BY avg_grade ASC
+LIMIT 10
+</sql>
+
+Вопрос: "Покажи мои оценки по всем предметам"
+<sql>
+SELECT c.name AS discipline, 
+       g.grade,
+       c.semester,
+       CASE WHEN g.is_passed THEN 'сдано' ELSE 'не сдано' END AS status
+FROM courses c
+JOIN grades g ON g.course_id = c.id
+WHERE g.student_id = 1
+ORDER BY c.semester DESC, c.name
+LIMIT 50
+</sql>
+
+Вопрос: "Какие у меня задолженности?" или "Что я не сдал?"
+<sql>
+SELECT c.name AS discipline, 
+       c.semester
+FROM courses c
+JOIN grades g ON g.course_id = c.id
+WHERE g.student_id = 1 
+  AND g.is_passed = false
+ORDER BY c.semester DESC
+</sql>
+9. Если пользователь спрашивает про "акцент", "слабые места", "на что обратить внимание", "какие дисциплины подтянуть" — ОБЯЗАТЕЛЬНО группируй по дисциплинам (GROUP BY c.id, c.name) и сортируй по среднему баллу (ORDER BY avg_grade ASC), чтобы показать самые слабые дисциплины первыми.
 """
 
 WHITELIST = {"faculties", "departments", "programs", "teachers",
@@ -544,20 +581,77 @@ DEMO_USERS = {
 
 @app.post("/api/auth")
 async def auth(data: LoginRequest):
-    user = DEMO_USERS.get(data.login)
-    if not user or user["password"] != data.password:
-        return JSONResponse(
-            status_code=401,
-            content={"success": False, "detail": "Неверный логин или пароль"}
-        )
+    logger.info(f"Auth attempt: login='{data.login}', password='{data.password}'")
     
-    return JSONResponse({
-        "success": True,
-        "role": user["role"],
-        "name": user["name"],
-        "entity_id": user["entity_id"],
-        "student_number": user["student_number"]
-    })
+    # 1. Сначала проверяем жёстко заданных демо-пользователей
+    demo_user = DEMO_USERS.get(data.login.lower())
+    if demo_user and demo_user["password"] == data.password:
+        logger.info(f"Auth success via DEMO_USERS: {data.login}")
+        return JSONResponse({
+            "success": True,
+            "role": demo_user["role"],
+            "name": demo_user["name"],
+            "entity_id": demo_user["entity_id"],
+            "student_number": demo_user["student_number"]
+        })
+    
+    # 2. Пробуем найти в таблице users
+    conn = None
+    try:
+        conn = psycopg.connect(
+            host=DB_HOST, port=DB_PORT, dbname=DB_NAME,
+            user=DB_USER, password=DB_PASSWORD, row_factory=dict_row
+        )
+        cur = conn.cursor()
+        
+        # Проверяем, сколько всего пользователей в таблице
+        cur.execute("SELECT COUNT(*) as count FROM users")
+        total_users = cur.fetchone()
+        logger.info(f"Total users in DB: {total_users['count']}")
+        
+        # Пробуем найти пользователя БЕЗ проверки пароля (для отладки)
+        cur.execute("SELECT login, role, full_name FROM users WHERE login = %s", (data.login,))
+        user_no_pass = cur.fetchone()
+        if user_no_pass:
+            logger.info(f"User found (without password check): {user_no_pass}")
+        else:
+            logger.warning(f"User NOT found in DB with login: '{data.login}'")
+        
+        # Теперь проверяем с паролем
+        cur.execute("""
+            SELECT login, role, full_name, entity_id, student_number 
+            FROM users 
+            WHERE login = %s AND password = %s
+        """, (data.login, data.password))
+        
+        user = cur.fetchone()
+        
+        if user:
+            logger.info(f"Auth success via DB: {user['login']}")
+            return JSONResponse({
+                "success": True,
+                "role": user["role"],
+                "name": user["full_name"],
+                "entity_id": user["entity_id"],
+                "student_number": user["student_number"]
+            })
+        else:
+            logger.warning(f"User found but password mismatch for: {data.login}")
+            
+    except Exception as e:
+        logger.error(f"Auth DB error: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+    finally:
+        if conn:
+            conn.close()
+    
+    # Если ничего не сработало
+    logger.warning(f"Auth failed for: {data.login}")
+    return JSONResponse(
+        status_code=401,
+        content={"success": False, "detail": "Неверный логин или пароль"}
+    )
 
 
 @app.get("/health")

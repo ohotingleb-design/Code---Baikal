@@ -91,10 +91,11 @@ document.body.classList.toggle("light",
                onkeydown="if(event.key==='Enter') doLogin()">
         <div class="confirm-error" id="loginError"></div>
         <div class="demo-hint">
-            Демо-доступы для защиты:<br>
-            студент — <b>ivanov / stud2026</b><br>
-            преподаватель — <b>petrova / teach2026</b><br>
-            администратор — <b>admin / admin2026</b>
+            <b>Демо-доступы:</b><br>
+            студент: <b>ivanov</b> / stud2026<br>
+            преподаватель: <b>petrova</b> / teach2026<br>
+            администратор: <b>admin</b> / admin2026<br><br>
+            💡 <i>Также можно ввести любой существующий <b>student_id_number</b> (например, ST-00002) или часть <b>ФИО</b> преподавателя/админа из базы данных!</i>
         </div>
         <button class="btn-confirm" onclick="doLogin()">
             <i data-lucide="log-in"></i> Войти

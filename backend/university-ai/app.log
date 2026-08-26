@@ -1,181 +1,266 @@
-2026-08-25 22:56:22,924 | INFO | Question from 127.0.0.1 (role=student): динамика набора за 5 лет
-2026-08-25 22:56:25,225 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-25 22:56:25,225 | INFO | LLM answered in 2.30 sec, length=531
-2026-08-25 22:56:25,226 | INFO | Executing SQL: WITH yearly_counts AS (
-  SELECT enrollment_year AS year, COUNT(*) AS students
-  FROM students
-  WHERE enrollment_year >= 2021
-  GROUP BY enrollment_year
-)
-SELECT year, students
-FROM yearly_counts
-ORDER BY year LIMIT 50
-2026-08-25 22:56:25,311 | ERROR | DB error: connection failed: connection to server at "127.0.0.1", port 5432 failed: �����:  ������������ "db11_user" �� ������ �������� ����������� (�� ������)
-2026-08-25 22:56:25,311 | INFO | Retrying with fix prompt
-2026-08-25 22:56:26,351 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-25 22:56:26,352 | INFO | Executing SQL: WITH yearly_counts AS (
-  SELECT enrollment_year AS year, COUNT(*) AS students
-  FROM students
-  WHERE enrollment_year >= 2021
-  GROUP BY enrollment_year
-)
-SELECT year, students
-FROM yearly_counts
-ORDER BY year LIMIT 50
-2026-08-25 22:56:26,393 | ERROR | Retry DB error: connection failed: connection to server at "127.0.0.1", port 5432 failed: �����:  ������������ "db11_user" �� ������ �������� ����������� (�� ������)
-2026-08-25 23:17:57,525 | INFO | Question from 127.0.0.1 (role=student): Сколько студентов на факультете ИТ?
-2026-08-25 23:18:00,142 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-25 23:18:00,151 | INFO | LLM answered in 2.63 sec, length=231
-2026-08-25 23:18:00,153 | INFO | Executing SQL: SELECT f.name AS faculty, COUNT(s.id) AS student_count
-FROM faculties f
-LEFT JOIN students s ON s.faculty_id = f.id
-WHERE f.name ILIKE '%ИТ%'
-GROUP BY f.id, f.name LIMIT 50
-2026-08-25 23:18:00,239 | INFO | Success: 1 rows
-2026-08-25 23:18:27,314 | INFO | Question from 127.0.0.1 (role=student): статистика поступлений последние 5 лет
-2026-08-25 23:18:29,329 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-25 23:18:29,330 | INFO | LLM answered in 2.02 sec, length=487
-2026-08-25 23:18:29,331 | INFO | Executing SQL: SELECT application_year, COUNT(*) AS applicants_count
-FROM applicants
-WHERE application_year >= (CURRENT_DATE::DATE - INTERVAL '5 year')
-GROUP BY application_year
-ORDER BY application_year LIMIT 50
-2026-08-25 23:18:29,351 | ERROR | DB error: operator does not exist: integer >= timestamp without time zone
-LINE 3: WHERE application_year >= (CURRENT_DATE::DATE - INTERVAL '5 ...
-                               ^
-HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
-2026-08-25 23:18:29,351 | INFO | Retrying with fix prompt
-2026-08-25 23:18:30,701 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-25 23:18:30,702 | INFO | Executing SQL: SELECT application_year, COUNT(*) AS applicants_count
-FROM applicants
-WHERE application_year >= (DATE_TRUNC('year', CURRENT_DATE) - INTERVAL '5 year')::DATE
-GROUP BY application_year
-ORDER BY application_year LIMIT 50
-2026-08-25 23:18:30,715 | ERROR | Retry DB error: operator does not exist: integer >= date
-LINE 3: WHERE application_year >= (DATE_TRUNC('year', CURRENT_DATE) ...
-                               ^
-HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
-2026-08-25 23:18:42,224 | INFO | Question from 127.0.0.1 (role=student): динамика набора за 5 лет
-2026-08-25 23:18:44,697 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-25 23:18:44,699 | INFO | LLM answered in 2.47 sec, length=531
-2026-08-25 23:18:44,699 | INFO | Executing SQL: WITH yearly_counts AS (
-  SELECT enrollment_year AS year, COUNT(*) AS students
-  FROM students
-  WHERE enrollment_year >= 2021
-  GROUP BY enrollment_year
-)
-SELECT year, students
-FROM yearly_counts
-ORDER BY year LIMIT 50
-2026-08-25 23:18:44,720 | INFO | Success: 5 rows
-2026-08-26 00:15:51,360 | INFO | Question from 127.0.0.1 (role=student): сколько всего студентов?
-2026-08-26 00:15:54,709 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 00:15:54,724 | INFO | LLM answered in 3.36 sec, length=238
-2026-08-26 00:15:54,725 | INFO | Executing SQL: SELECT COUNT(id) AS total_students
-FROM students
-2026-08-26 00:15:55,073 | ERROR | DB error: connection failed: connection to server at "127.0.0.1", port 5432 failed: �����:  ������������ "db11_user" �� ������ �������� ����������� (�� ������)
-2026-08-26 00:15:55,073 | INFO | Retrying with fix prompt
-2026-08-26 00:15:55,661 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 00:15:55,663 | INFO | Executing SQL: SELECT COUNT(id) AS total_students
-FROM students
-2026-08-26 00:15:55,702 | ERROR | Retry DB error: connection failed: connection to server at "127.0.0.1", port 5432 failed: �����:  ������������ "db11_user" �� ������ �������� ����������� (�� ������)
-2026-08-26 09:45:05,001 | INFO | Question from 127.0.0.1 (role=student): Покажи количество поступивших абитуриентов по годам за последние 5 лет
-2026-08-26 09:45:07,503 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 09:45:07,514 | INFO | LLM answered in 2.51 sec, length=341
-2026-08-26 09:45:07,516 | INFO | Executing SQL: SELECT 
-    application_year AS год,
-    COUNT(*) AS всего_заявлений,
-    COUNT(CASE WHEN is_admitted = true THEN 1 END) AS поступило
-FROM applicants
-WHERE application_year >= 2021
-GROUP BY application_year
-ORDER BY application_year DESC LIMIT 50
-2026-08-26 09:45:07,590 | INFO | Success: 5 rows
-2026-08-26 09:45:25,758 | INFO | Question from 127.0.0.1 (role=student): Статистика поступлений за последние 5 лет
-2026-08-26 09:45:27,424 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 09:45:27,425 | INFO | LLM answered in 1.67 sec, length=429
-2026-08-26 09:45:27,426 | INFO | Executing SQL: SELECT 
-    application_year AS год,
-    COUNT(*) AS всего_заявлений,
-    COUNT(CASE WHEN is_admitted = true THEN 1 END) AS поступило
-FROM applicants
-WHERE application_year >= 2021
-GROUP BY application_year
-ORDER BY application_year DESC LIMIT 50
-2026-08-26 09:45:27,446 | INFO | Success: 5 rows
-2026-08-26 10:00:38,524 | INFO | Stats requested
-2026-08-26 10:00:48,138 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 10:17:45,149 | INFO | Stats requested
-2026-08-26 10:17:46,975 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 10:18:51,699 | INFO | Question from 127.0.0.1 (role=student): сколько всего студентов?
-2026-08-26 10:18:52,592 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 10:18:52,593 | INFO | LLM answered in 0.89 sec, length=170
-2026-08-26 10:18:52,594 | INFO | Executing SQL: SELECT COUNT(*) AS total_students
-FROM students
-2026-08-26 10:18:52,667 | INFO | Success: 1 rows
-2026-08-26 10:43:07,621 | INFO | Question from 127.0.0.1 (role=student): сколько всего студентов
-2026-08-26 10:43:09,818 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 10:43:09,834 | INFO | LLM answered in 2.21 sec, length=170
-2026-08-26 10:43:09,835 | INFO | Executing SQL: SELECT COUNT(*) AS total_students
-FROM students
-2026-08-26 10:43:09,891 | INFO | Success: 1 rows
-2026-08-26 10:51:59,882 | INFO | Question from 127.0.0.1 (role=applicant): ПРивет1
-2026-08-26 10:52:01,704 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 10:52:01,712 | INFO | LLM answered in 1.83 sec, length=63
-2026-08-26 10:52:01,715 | INFO | Executing SQL: SELECT 'Привет! Я готов помочь.' AS answer LIMIT 50
-2026-08-26 10:52:01,737 | INFO | Success: 1 rows
-2026-08-26 10:52:18,155 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на направлении «Экономика»?
-2026-08-26 10:52:19,257 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 10:52:19,258 | INFO | LLM answered in 1.10 sec, length=205
-2026-08-26 10:52:19,259 | INFO | Executing SQL: SELECT p.name, p.budget_places
-FROM programs p
-WHERE p.name ILIKE '%экономика%' LIMIT 50
-2026-08-26 10:52:19,304 | INFO | Success: 1 rows
-2026-08-26 11:01:59,562 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на направлении «Экономика»?
-2026-08-26 11:02:02,407 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 11:02:02,415 | INFO | LLM answered in 2.85 sec, length=205
-2026-08-26 11:02:02,417 | INFO | Executing SQL: SELECT p.name AS program_name, p.budget_places AS budget_places
-FROM programs p
-WHERE p.name ILIKE '%экономика%' LIMIT 50
-2026-08-26 11:02:02,436 | INFO | Success: 1 rows
-2026-08-26 11:11:03,185 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на направлении «Экономика»?
-2026-08-26 11:11:05,272 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 11:11:05,283 | INFO | LLM answered in 2.10 sec, length=205
-2026-08-26 11:11:05,286 | INFO | Executing SQL: SELECT p.name, p.budget_places
-FROM programs p
-WHERE p.name ILIKE '%экономика%' LIMIT 50
-2026-08-26 11:11:05,329 | INFO | Success: 1 rows
-2026-08-26 11:11:08,405 | INFO | Question from 127.0.0.1 (role=applicant): Какие направления подготовки есть в университете?
-2026-08-26 11:11:09,088 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 11:11:09,089 | INFO | LLM answered in 0.68 sec, length=118
-2026-08-26 11:11:09,090 | INFO | Executing SQL: SELECT p.name
-FROM programs p LIMIT 50
-2026-08-26 11:11:09,102 | INFO | Success: 14 rows
-2026-08-26 11:18:41,629 | INFO | Question from 127.0.0.1 (role=applicant): Какой средний проходной балл был в 2025 году?
-2026-08-26 11:18:43,623 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 11:18:43,631 | INFO | LLM answered in 2.00 sec, length=180
-2026-08-26 11:18:43,633 | INFO | Executing SQL: SELECT AVG(a.total_score) AS avg_score
-FROM applicants a
-WHERE a.application_year = 2025
-  AND a.is_admitted = true
-2026-08-26 11:18:43,695 | INFO | Success: 1 rows
-2026-08-26 11:18:45,182 | INFO | Question from 127.0.0.1 (role=applicant): Какие направления подготовки есть в университете?
-2026-08-26 11:18:45,887 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 11:18:45,888 | INFO | LLM answered in 0.71 sec, length=118
-2026-08-26 11:18:45,889 | INFO | Executing SQL: SELECT p.name
-FROM programs p LIMIT 50
-2026-08-26 11:18:45,900 | INFO | Success: 14 rows
-2026-08-26 12:17:58,921 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на направлении «Экономика»?
-2026-08-26 12:18:01,641 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 12:18:01,650 | INFO | LLM answered in 2.73 sec, length=176
-2026-08-26 12:18:01,653 | INFO | Executing SQL: SELECT p.name, p.budget_places
-FROM programs p
-WHERE p.name ILIKE '%Экономика%' LIMIT 50
-2026-08-26 12:18:01,785 | INFO | Success: 1 rows
-2026-08-26 12:20:26,305 | INFO | Question from 127.0.0.1 (role=student): Какой у меня средний балл за семестр?
-2026-08-26 12:20:29,385 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
-2026-08-26 12:20:29,386 | INFO | LLM answered in 3.08 sec, length=463
-2026-08-26 12:20:29,387 | INFO | Executing SQL: SELECT AVG(grade) AS average_grade
+2026-08-26 20:35:08,642 | INFO | Question from 127.0.0.1 (role=student): Какой у меня средний балл за семестр?
+2026-08-26 20:35:12,720 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-26 20:35:12,721 | INFO | LLM answered in 4.08 sec, length=456
+2026-08-26 20:35:12,722 | INFO | Executing SQL: SELECT AVG(grade) AS average_grade
 FROM grades
 WHERE grades.student_id = 1
-2026-08-26 12:20:29,493 | INFO | Success: 1 rows
+2026-08-26 20:35:12,739 | INFO | Success: 1 rows
+2026-08-26 20:49:59,435 | INFO | Question from 127.0.0.1 (role=student): на какую дисциплину мне стоит сделать акцент
+2026-08-26 20:50:02,033 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-26 20:50:02,034 | INFO | LLM answered in 2.60 sec, length=431
+2026-08-26 20:50:02,034 | INFO | Executing SQL: SELECT DISTINCT c.name
+FROM grades
+JOIN courses c ON grades.course_id = c.id
+WHERE grades.student_id = 1 LIMIT 50
+2026-08-26 20:50:02,088 | INFO | Success: 11 rows
+2026-08-26 20:50:28,213 | INFO | Question from 127.0.0.1 (role=student): по какой дициплине у меня самый низкий балл
+2026-08-26 20:50:30,940 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-26 20:50:30,942 | INFO | LLM answered in 2.73 sec, length=529
+2026-08-26 20:50:30,943 | INFO | Executing SQL: SELECT c.name AS course, MIN(grade) AS min_grade
+FROM grades
+JOIN courses ON grades.course_id = courses.id
+WHERE grades.student_id = 1
+GROUP BY c.name
+LIMIT 1
+2026-08-26 20:50:30,962 | ERROR | DB error: missing FROM-clause entry for table "c"
+LINE 1: SELECT c.name AS course, MIN(grade) AS min_grade
+               ^
+2026-08-26 20:50:30,962 | INFO | Retrying with fix prompt
+2026-08-26 20:50:32,211 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-26 20:50:32,212 | INFO | Executing SQL: SELECT c.name AS course, MIN(grade) AS min_grade
+FROM grades
+JOIN courses ON grades.course_id = courses.id
+JOIN students ON grades.student_id = students.id
+WHERE grades.student_id = 1
+GROUP BY c.name
+LIMIT 1
+2026-08-26 20:50:32,240 | ERROR | Retry DB error: missing FROM-clause entry for table "c"
+LINE 1: SELECT c.name AS course, MIN(grade) AS min_grade
+               ^
+2026-08-26 21:41:20,535 | INFO | Question from 127.0.0.1 (role=student): Какой у меня средний балл за семестр?
+2026-08-26 21:41:24,411 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-26 21:41:24,425 | INFO | LLM answered in 3.89 sec, length=126
+2026-08-26 21:41:24,427 | INFO | Executing SQL: SELECT AVG(g.grade) AS average_grade
+FROM grades g
+WHERE g.student_id = 1
+2026-08-26 21:41:24,689 | INFO | Success: 1 rows
+2026-08-26 21:42:32,698 | INFO | Question from 127.0.0.1 (role=applicant): Сколько заявлений подано на «Информатика» в 2026?
+2026-08-26 21:42:35,110 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-26 21:42:35,111 | INFO | LLM answered in 2.41 sec, length=276
+2026-08-26 21:42:35,111 | INFO | Executing SQL: SELECT COUNT(*) AS total_applications
+FROM applicants
+WHERE application_year = 2026 AND program_id IN (
+    SELECT id
+    FROM programs
+    WHERE name ILIKE '%Информатика%'
+)
+2026-08-26 21:42:35,135 | INFO | Success: 1 rows
+2026-08-26 21:42:47,634 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на направлении «Экономика»?
+2026-08-26 21:42:48,974 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-26 21:42:48,975 | INFO | LLM answered in 1.34 sec, length=205
+2026-08-26 21:42:48,975 | INFO | Executing SQL: SELECT p.name, p.budget_places
+FROM programs p
+WHERE p.name ILIKE '%Экономика%' LIMIT 50
+2026-08-26 21:42:48,992 | INFO | Success: 1 rows
+2026-08-26 22:33:45,117 | ERROR | DB auth error: relation "users" does not exist
+LINE 3:             FROM users 
+                         ^
+2026-08-26 22:33:49,104 | ERROR | DB auth error: relation "users" does not exist
+LINE 3:             FROM users 
+                         ^
+2026-08-26 22:33:54,254 | ERROR | DB auth error: relation "users" does not exist
+LINE 3:             FROM users 
+                         ^
+2026-08-26 22:33:55,543 | ERROR | DB auth error: relation "users" does not exist
+LINE 3:             FROM users 
+                         ^
+2026-08-26 22:34:04,487 | ERROR | DB auth error: relation "users" does not exist
+LINE 3:             FROM users 
+                         ^
+2026-08-26 22:34:05,910 | ERROR | DB auth error: relation "users" does not exist
+LINE 3:             FROM users 
+                         ^
+2026-08-26 22:34:13,473 | ERROR | DB auth error: relation "users" does not exist
+LINE 3:             FROM users 
+                         ^
+2026-08-26 22:34:35,021 | ERROR | DB auth error: relation "users" does not exist
+LINE 3:             FROM users 
+                         ^
+2026-08-26 22:34:36,397 | ERROR | DB auth error: relation "users" does not exist
+LINE 3:             FROM users 
+                         ^
+2026-08-26 22:36:17,042 | INFO | Table 'users' not found, trying alternative auth
+2026-08-26 22:36:17,046 | ERROR | Auth error: current transaction is aborted, commands ignored until end of transaction block
+2026-08-26 22:36:18,812 | INFO | Table 'users' not found, trying alternative auth
+2026-08-26 22:36:18,814 | ERROR | Auth error: current transaction is aborted, commands ignored until end of transaction block
+2026-08-26 22:36:29,761 | INFO | Table 'users' not found, trying alternative auth
+2026-08-26 22:36:29,763 | ERROR | Auth error: current transaction is aborted, commands ignored until end of transaction block
+2026-08-26 22:36:30,520 | INFO | Table 'users' not found, trying alternative auth
+2026-08-26 22:36:30,521 | ERROR | Auth error: current transaction is aborted, commands ignored until end of transaction block
+2026-08-26 22:36:30,726 | INFO | Table 'users' not found, trying alternative auth
+2026-08-26 22:36:30,728 | ERROR | Auth error: current transaction is aborted, commands ignored until end of transaction block
+2026-08-26 22:39:02,488 | INFO | Auth attempt: login=ivanov, password=stud2026
+2026-08-26 22:39:02,489 | INFO | Auth success via DEMO_USERS: ivanov
+2026-08-26 22:39:27,485 | INFO | Auth attempt: login=sidorov, password=stud2026
+2026-08-26 22:39:27,506 | ERROR | Auth DB error: relation "users" does not exist
+LINE 3:             FROM users 
+                         ^
+2026-08-26 22:39:27,506 | WARNING | Auth failed for: sidorov
+2026-08-26 22:39:28,535 | INFO | Auth attempt: login=sidorov, password=stud2026
+2026-08-26 22:39:28,549 | ERROR | Auth DB error: relation "users" does not exist
+LINE 3:             FROM users 
+                         ^
+2026-08-26 22:39:28,550 | WARNING | Auth failed for: sidorov
+2026-08-26 22:39:43,255 | INFO | Auth attempt: login=petrova, password=teach2026
+2026-08-26 22:39:43,255 | INFO | Auth success via DEMO_USERS: petrova
+2026-08-26 22:39:55,804 | INFO | Auth attempt: login=admin, password=admin2026
+2026-08-26 22:39:55,804 | INFO | Auth success via DEMO_USERS: admin
+2026-08-26 22:40:06,542 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на направлении «Экономика»?
+2026-08-26 22:40:09,079 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-26 22:40:09,090 | INFO | LLM answered in 2.55 sec, length=205
+2026-08-26 22:40:09,093 | INFO | Executing SQL: SELECT p.name, p.budget_places
+FROM programs p
+WHERE p.name ILIKE '%Экономика%' LIMIT 50
+2026-08-26 22:40:09,126 | INFO | Success: 3 rows
+2026-08-26 22:42:52,139 | INFO | Auth attempt: login='sidorov', password='stud2026'
+2026-08-26 22:42:52,200 | ERROR | Auth DB error: relation "users" does not exist
+LINE 1: SELECT COUNT(*) as count FROM users
+                                      ^
+2026-08-26 22:42:52,203 | ERROR | Traceback (most recent call last):
+  File "C:\Game\Code---Baikal\backend\university-ai\app.py", line 608, in auth
+    cur.execute("SELECT COUNT(*) as count FROM users")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nikit\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\psycopg\cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedTable: relation "users" does not exist
+LINE 1: SELECT COUNT(*) as count FROM users
+                                      ^
+
+2026-08-26 22:42:52,204 | WARNING | Auth failed for: sidorov
+2026-08-26 22:42:53,142 | INFO | Auth attempt: login='sidorov', password='stud2026'
+2026-08-26 22:42:53,156 | ERROR | Auth DB error: relation "users" does not exist
+LINE 1: SELECT COUNT(*) as count FROM users
+                                      ^
+2026-08-26 22:42:53,157 | ERROR | Traceback (most recent call last):
+  File "C:\Game\Code---Baikal\backend\university-ai\app.py", line 608, in auth
+    cur.execute("SELECT COUNT(*) as count FROM users")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nikit\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\psycopg\cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedTable: relation "users" does not exist
+LINE 1: SELECT COUNT(*) as count FROM users
+                                      ^
+
+2026-08-26 22:42:53,157 | WARNING | Auth failed for: sidorov
+2026-08-26 22:42:53,290 | INFO | Auth attempt: login='sidorov', password='stud2026'
+2026-08-26 22:42:53,306 | ERROR | Auth DB error: relation "users" does not exist
+LINE 1: SELECT COUNT(*) as count FROM users
+                                      ^
+2026-08-26 22:42:53,307 | ERROR | Traceback (most recent call last):
+  File "C:\Game\Code---Baikal\backend\university-ai\app.py", line 608, in auth
+    cur.execute("SELECT COUNT(*) as count FROM users")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nikit\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\psycopg\cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedTable: relation "users" does not exist
+LINE 1: SELECT COUNT(*) as count FROM users
+                                      ^
+
+2026-08-26 22:42:53,307 | WARNING | Auth failed for: sidorov
+2026-08-26 22:42:53,513 | INFO | Auth attempt: login='sidorov', password='stud2026'
+2026-08-26 22:42:53,530 | ERROR | Auth DB error: relation "users" does not exist
+LINE 1: SELECT COUNT(*) as count FROM users
+                                      ^
+2026-08-26 22:42:53,531 | ERROR | Traceback (most recent call last):
+  File "C:\Game\Code---Baikal\backend\university-ai\app.py", line 608, in auth
+    cur.execute("SELECT COUNT(*) as count FROM users")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nikit\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\psycopg\cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedTable: relation "users" does not exist
+LINE 1: SELECT COUNT(*) as count FROM users
+                                      ^
+
+2026-08-26 22:42:53,532 | WARNING | Auth failed for: sidorov
+2026-08-26 22:43:37,368 | INFO | Auth attempt: login='ivanov', password='stud2026'
+2026-08-26 22:43:37,369 | INFO | Auth success via DEMO_USERS: ivanov
+2026-08-26 22:43:47,092 | INFO | Auth attempt: login='sidorov', password='stud2026'
+2026-08-26 22:43:47,107 | ERROR | Auth DB error: relation "users" does not exist
+LINE 1: SELECT COUNT(*) as count FROM users
+                                      ^
+2026-08-26 22:43:47,107 | ERROR | Traceback (most recent call last):
+  File "C:\Game\Code---Baikal\backend\university-ai\app.py", line 608, in auth
+    cur.execute("SELECT COUNT(*) as count FROM users")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nikit\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\psycopg\cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedTable: relation "users" does not exist
+LINE 1: SELECT COUNT(*) as count FROM users
+                                      ^
+
+2026-08-26 22:43:47,108 | WARNING | Auth failed for: sidorov
+2026-08-26 22:49:12,825 | INFO | Auth attempt: login='sidorov', password='stud2026'
+2026-08-26 22:49:12,896 | ERROR | Auth DB error: relation "users" does not exist
+LINE 1: SELECT COUNT(*) as count FROM users
+                                      ^
+2026-08-26 22:49:12,898 | ERROR | Traceback (most recent call last):
+  File "C:\Game\Code---Baikal\backend\university-ai\app.py", line 608, in auth
+    cur.execute("SELECT COUNT(*) as count FROM users")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nikit\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\psycopg\cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedTable: relation "users" does not exist
+LINE 1: SELECT COUNT(*) as count FROM users
+                                      ^
+
+2026-08-26 22:49:12,899 | WARNING | Auth failed for: sidorov
+2026-08-26 22:52:44,950 | INFO | Auth attempt: login='sidorov', password='stud2026'
+2026-08-26 22:52:44,981 | ERROR | Auth DB error: relation "users" does not exist
+LINE 1: SELECT COUNT(*) as count FROM users
+                                      ^
+2026-08-26 22:52:44,982 | ERROR | Traceback (most recent call last):
+  File "C:\Game\Code---Baikal\backend\university-ai\app.py", line 608, in auth
+    cur.execute("SELECT COUNT(*) as count FROM users")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nikit\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\psycopg\cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedTable: relation "users" does not exist
+LINE 1: SELECT COUNT(*) as count FROM users
+                                      ^
+
+2026-08-26 22:52:44,982 | WARNING | Auth failed for: sidorov
+2026-08-26 22:54:11,313 | INFO | Question from 127.0.0.1 (role=applicant): «Выведи список из 5 лучших студентов факультета IT с их именами и средним баллом за последнюю сессию
+2026-08-26 22:54:15,537 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-26 22:54:15,547 | INFO | LLM answered in 4.23 sec, length=512
+2026-08-26 22:54:15,549 | INFO | Executing SQL: SELECT s.student_id_number, s.group_name, AVG(g.grade) AS avg_grade
+FROM students s
+JOIN grades g ON g.student_id = s.id
+WHERE s.faculty_id = (SELECT id FROM faculties WHERE name ILIKE '%IT%')
+GROUP BY s.student_id_number, s.group_name
+ORDER BY avg_grade DESC
+LIMIT 5
+2026-08-26 22:54:15,662 | INFO | Success: 0 rows
+2026-08-26 22:58:26,654 | INFO | Auth attempt: login='smirnov', password='stud2026'
+2026-08-26 22:58:26,738 | INFO | Total users in DB: 6
+2026-08-26 22:58:26,756 | INFO | User found (without password check): {'login': 'smirnov', 'role': 'teacher', 'full_name': 'Смирнов Сергей Сергеевич'}
+2026-08-26 22:58:26,760 | WARNING | User found but password mismatch for: smirnov
+2026-08-26 22:58:26,760 | WARNING | Auth failed for: smirnov
+2026-08-26 22:58:44,714 | INFO | Auth attempt: login='sidorov', password='stud2026'
+2026-08-26 22:58:44,749 | INFO | Total users in DB: 6
+2026-08-26 22:58:44,753 | INFO | User found (without password check): {'login': 'sidorov', 'role': 'student', 'full_name': 'Сидоров Пётр Алексеевич'}
+2026-08-26 22:58:44,755 | INFO | Auth success via DB: sidorov
+2026-08-26 22:58:55,397 | INFO | Question from 127.0.0.1 (role=student): Какой у меня средний балл за семестр?
+2026-08-26 22:58:58,230 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-26 22:58:58,238 | INFO | LLM answered in 2.84 sec, length=127
+2026-08-26 22:58:58,240 | INFO | Executing SQL: SELECT AVG(g.grade) AS average_grade
+FROM grades g
+WHERE g.student_id = 2
+2026-08-26 22:58:58,289 | INFO | Success: 1 rows
+2026-08-26 23:08:28,194 | INFO | Auth attempt: login='sidorov', password='stud2026'
+2026-08-26 23:08:28,223 | INFO | Total users in DB: 6
+2026-08-26 23:08:28,237 | INFO | User found (without password check): {'login': 'sidorov', 'role': 'student', 'full_name': 'Сидоров Пётр Алексеевич'}
+2026-08-26 23:08:28,239 | INFO | Auth success via DB: sidorov
+2026-08-26 23:10:02,195 | INFO | Auth attempt: login='smirnov', password='teach2026'
+2026-08-26 23:10:02,217 | INFO | Total users in DB: 6
+2026-08-26 23:10:02,220 | INFO | User found (without password check): {'login': 'smirnov', 'role': 'teacher', 'full_name': 'Смирнов Сергей Сергеевич'}
+2026-08-26 23:10:02,221 | INFO | Auth success via DB: smirnov
