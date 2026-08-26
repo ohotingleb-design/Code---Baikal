@@ -1,19 +1,40 @@
-version: '3.8'
-
 services:
-  postgres:
+  api:
+    build: .
+    container_name: university-ai-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: university_db
+      DB_USER: db11_user
+      DB_PASSWORD: "12345"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
     image: postgres:16
-    container_name: university_db
-    restart: always
+    container_name: university-db
     environment:
       POSTGRES_DB: university_db
       POSTGRES_USER: db11_user
-      POSTGRES_PASSWORD: 12345
+      POSTGRES_PASSWORD: "12345"
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U db11_user -d university_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
 
 volumes:
   pgdata:
