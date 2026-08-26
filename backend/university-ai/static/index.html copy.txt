@@ -6,7 +6,7 @@
 <title>Ассистент Университета</title>
 
 <!-- Стили -->
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/static/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 
 <!-- Подсветка SQL -->
@@ -18,7 +18,7 @@
 </head>
 <body>
 
-<!-- ✅ Применяем тему ДО отрисовки (без мигания) -->
+<!-- ✅ НОВОЕ: применяем тему ДО отрисовки (без мигания) -->
 <script>
 document.body.classList.toggle("light",
     (localStorage.getItem("theme") ||
@@ -40,13 +40,14 @@ document.body.classList.toggle("light",
                 </div>
             </div>
             <div class="header-actions">
-                <button class="btn-header" id="loginBtn" onclick="openLogin()" aria-label="Войти или выйти">
-                    <i data-lucide="log-in"></i> <span class="btn-text">Войти</span>
+                <button class="btn-header" id="loginBtn" onclick="openLogin()">
+                    <i data-lucide="log-in"></i> Войти
                 </button>
-                <button class="btn-clear" id="themeBtn" onclick="toggleTheme()" title="Сменить тему" aria-label="Сменить тему">
+                <!-- ✅ НОВОЕ: переключатель темы -->
+                <button class="btn-clear" id="themeBtn" onclick="toggleTheme()" title="Сменить тему">
                     <i data-lucide="sun"></i>
                 </button>
-                <button class="btn-clear" onclick="clearHistory()" title="Очистить историю" aria-label="Очистить историю">
+                <button class="btn-clear" onclick="clearHistory()" title="Очистить историю">
                     <i data-lucide="trash-2"></i>
                 </button>
             </div>
@@ -64,9 +65,8 @@ document.body.classList.toggle("light",
         <!-- ===== ПОЛЕ ВВОДА ===== -->
         <div class="chat-input-container">
             <div class="input-wrapper">
-                <!-- Убраны inline-обработчики, теперь всё управляется через script.js для чистоты и UX -->
-                <textarea id="userInput" placeholder="Задайте вопрос..." rows="1" aria-label="Поле ввода сообщения"></textarea>
-                <button class="send-btn" id="sendBtn" aria-label="Отправить сообщение">
+                <textarea id="userInput" placeholder="Задайте вопрос..." rows="1"></textarea>
+                <button class="send-btn" id="sendBtn">
                     <i data-lucide="arrow-up"></i>
                 </button>
             </div>
@@ -81,20 +81,20 @@ document.body.classList.toggle("light",
     <div class="modal-card">
         <div class="modal-header">
             <h3><i data-lucide="lock-keyhole"></i> Вход в систему</h3>
-            <button class="modal-close" onclick="closeLogin()" aria-label="Закрыть окно"><i data-lucide="x"></i></button>
+            <button class="modal-close" onclick="closeLogin()"><i data-lucide="x"></i></button>
         </div>
         <p class="modal-subtitle">Для студентов, преподавателей и сотрудников университета</p>
         <label for="loginInput">Логин</label>
         <input type="text" id="loginInput" placeholder="Введите логин">
         <label for="passwordInput">Пароль</label>
-        <input type="password" id="passwordInput" placeholder="Введите пароль">
+        <input type="password" id="passwordInput" placeholder="Введите пароль"
+               onkeydown="if(event.key==='Enter') doLogin()">
         <div class="confirm-error" id="loginError"></div>
         <div class="demo-hint">
-            <b>Демо-доступы:</b><br>
-            студент: <b>ivanov</b> / stud2026<br>
-            преподаватель: <b>petrova</b> / teach2026<br>
-            администратор: <b>admin</b> / admin2026<br><br>
-            💡 <i>Также можно ввести любой существующий <b>student_id_number</b> (например, ST-00002) или часть <b>ФИО</b> преподавателя/админа из базы данных!</i>
+            Демо-доступы для защиты:<br>
+            студент — <b>ivanov / stud2026</b><br>
+            преподаватель — <b>petrova / teach2026</b><br>
+            администратор — <b>admin / admin2026</b>
         </div>
         <button class="btn-confirm" onclick="doLogin()">
             <i data-lucide="log-in"></i> Войти
@@ -102,7 +102,7 @@ document.body.classList.toggle("light",
     </div>
 </div>
 
-<script src="script.js"></script>
+<script src="/static/script.js"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>
