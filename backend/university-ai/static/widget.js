@@ -3,6 +3,7 @@
 
   // ===== КОНФИГ =====
   const API_URL = window.UNIVERSITY_AI_API || window.location.origin + '/api/ask';
+  const LOGS_URL = window.UNIVERSITY_AI_LOGS || window.location.origin + '/api/logs';
   const STORAGE_KEY = 'uai_theme';
   const USER_KEY = 'uai_user';
   const HISTORY_KEY = 'uai_history';
@@ -12,7 +13,7 @@
     applicant: { name: 'Гость', icon: 'compass', desc: 'Публичный доступ к статистике приёма.' },
     student:   { name: 'Студент', icon: 'graduation-cap', desc: 'Моя успеваемость и дисциплины.' },
     teacher:   { name: 'Преподаватель', icon: 'book-open', desc: 'Мои дисциплины и нагрузка.' },
-    admin:     { name: 'Администрация', icon: 'building-2', desc: 'Отчётность по факультетам.' }
+    admin:     { name: 'Администрация', icon: 'building-2', desc: 'Отчётность по факультетам и системные логи.' }
   };
 
   const USERS = {
@@ -48,7 +49,6 @@
   .uai-root { font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif; }
   .uai-root *, .uai-root *::before, .uai-root *::after { box-sizing:border-box; }
 
-  /* Кнопка-плашка */
   .uai-btn {
     position:fixed; bottom:24px; right:24px; width:60px; height:60px; border-radius:50%;
     background:rgba(124,58,237,.85); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
@@ -60,7 +60,6 @@
   .uai-btn:hover { transform:scale(1.08); }
   .uai-btn .lucide { width:26px; height:26px; stroke-width:2; stroke:currentColor; fill:none; stroke-linecap:round; stroke-linejoin:round; }
 
-  /* Окно чата */
   .uai-chat {
     position:fixed; bottom:100px; right:24px; width:420px; height:600px; max-height:80vh;
     background:rgba(20,25,55,.55); backdrop-filter:blur(30px) saturate(160%); -webkit-backdrop-filter:blur(30px) saturate(160%);
@@ -72,7 +71,6 @@
   .uai-chat.open { display:flex; animation:uaiSlide .25s ease; }
   @keyframes uaiSlide { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
 
-  /* Шапка */
   .uai-head {
     background:rgba(255,255,255,.08); border-bottom:1px solid rgba(255,255,255,.12);
     padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:8px;
@@ -89,7 +87,6 @@
   .uai-ibtn:hover { background:rgba(255,255,255,.22); }
   .uai-ibtn .lucide { width:14px; height:14px; }
 
-  /* Бейдж роли — под заголовком */
   .uai-role {
     font-size:10px; padding:2px 8px; border-radius:999px;
     background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12);
@@ -98,7 +95,6 @@
   }
   .uai-role .lucide { width:10px; height:10px; }
 
-  /* Лента */
   .uai-msgs { flex:1; overflow-y:auto; padding:14px; background:transparent; }
   .uai-msgs::-webkit-scrollbar { width:5px; }
   .uai-msgs::-webkit-scrollbar-thumb { background:rgba(255,255,255,.2); border-radius:3px; }
@@ -116,7 +112,7 @@
     background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.14);
     backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
     box-shadow:0 4px 14px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.15);
-    word-wrap:break-word;
+    word-wrap:break-word; white-space:pre-wrap;
   }
   .uai-msg.u .uai-bubble {
     background:linear-gradient(135deg, rgba(37,99,235,.7), rgba(124,58,237,.7));
@@ -124,7 +120,6 @@
   }
   .uai-msg.b .uai-bubble { border-radius:14px 14px 14px 4px; }
 
-  /* Приветствие */
   .uai-welcome { text-align:center; padding:20px 10px; }
   .uai-welcome .lucide { width:40px; height:40px; color:#a5b4fc; margin-bottom:8px; }
   .uai-welcome h4 { color:#f8fafc; margin-bottom:6px; font-size:14px; font-weight:600; }
@@ -137,30 +132,25 @@
   }
   .uai-sugg:hover { background:rgba(255,255,255,.14); transform:translateX(3px); }
 
-  /* SQL-блок */
   .uai-sql { margin-top:8px; background:rgba(2,6,23,.7); border:1px solid rgba(255,255,255,.1); border-radius:10px; overflow:hidden; }
   .uai-sql-head { background:rgba(255,255,255,.06); color:#cbd5e1; padding:4px 10px; font-size:10px; display:flex; justify-content:space-between; align-items:center; }
   .uai-sql-head button { background:transparent; border:none; color:#94a3b8; cursor:pointer; font-size:10px; }
   .uai-sql pre { margin:0; padding:10px; overflow-x:auto; }
   .uai-sql code { font-family:Consolas,Monaco,monospace; font-size:11px; background:transparent; }
 
-  /* Таблица */
   .uai-tbl { margin-top:8px; overflow-x:auto; border-radius:8px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04); }
   .uai-tbl table { width:100%; border-collapse:collapse; font-size:11px; }
   .uai-tbl th { background:rgba(255,255,255,.08); padding:6px 8px; text-align:left; color:#e2e8f0; border-bottom:1px solid rgba(255,255,255,.12); }
   .uai-tbl td { padding:6px 8px; color:#dbeafe; border-bottom:1px solid rgba(255,255,255,.06); }
   .uai-csv { margin-top:6px; padding:4px 10px; border-radius:999px; font-size:11px; cursor:pointer;
     background:rgba(37,99,235,.6); color:#fff; border:1px solid rgba(255,255,255,.2); }
-
   .uai-err { background:rgba(220,38,38,.25) !important; color:#fecaca !important; border-color:rgba(248,113,113,.4) !important; }
 
-  /* Индикатор */
   .uai-typing { display:flex; gap:4px; padding:4px 0; }
   .uai-typing span { width:6px; height:6px; background:rgba(255,255,255,.6); border-radius:50%; animation:uaiDot 1.2s infinite; }
   .uai-typing span:nth-child(2){animation-delay:.15s} .uai-typing span:nth-child(3){animation-delay:.3s}
   @keyframes uaiDot { 0%,60%,100%{transform:translateY(0);opacity:.5} 30%{transform:translateY(-5px);opacity:1} }
 
-  /* Ввод */
   .uai-input-bar {
     padding:10px; border-top:1px solid rgba(255,255,255,.1);
     background:rgba(255,255,255,.04); backdrop-filter:blur(16px);
@@ -183,7 +173,6 @@
   .uai-send .lucide { width:16px; height:16px; }
   .uai-send:disabled { opacity:.4; cursor:not-allowed; transform:none; }
 
-  /* Модалка входа */
   .uai-modal {
     position:absolute; inset:0; background:rgba(8,10,30,.7); backdrop-filter:blur(6px);
     display:none; align-items:center; justify-content:center; padding:16px; z-index:10;
@@ -212,6 +201,30 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.3);
   }
 
+  /* ===== МОДАЛКА ЛОГОВ ===== */
+  .uai-logs-card { max-width:560px; display:flex; flex-direction:column; max-height:90%; }
+  .uai-logs-controls { display:flex; gap:6px; margin:10px 0; flex-wrap:wrap; }
+  .uai-logs-controls input {
+    padding:7px 10px; border-radius:8px; border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.08); color:#f8fafc; font-size:12px; outline:none;
+  }
+  .uai-logs-controls input:focus { border-color:#8b5cf6; }
+  #uaiLogsLines { width:70px; }
+  #uaiLogsFilter { flex:1; min-width:140px; }
+  .uai-logs-refresh {
+    padding:7px 12px; border:none; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600;
+    background:linear-gradient(135deg,#3b82f6,#8b5cf6); color:#fff;
+    display:inline-flex; align-items:center; gap:5px;
+  }
+  .uai-logs-refresh .lucide { width:12px; height:12px; }
+  .uai-logs-stats { font-size:11px; color:#94a3b8; margin-bottom:8px; line-height:1.5; }
+  .uai-logs-content {
+    flex:1; min-height:220px; max-height:340px; overflow:auto;
+    background:rgba(2,6,23,.7); border:1px solid rgba(255,255,255,.12); border-radius:10px;
+    padding:10px; font-family:Consolas,Monaco,monospace; font-size:11px; line-height:1.55;
+    color:#e2e8f0; white-space:pre-wrap; word-break:break-word; margin:0;
+  }
+
   /* Светлая тема */
   .uai-root.light .uai-chat { background:rgba(255,255,255,.75); color:#334155; border-color:rgba(30,41,59,.1); }
   .uai-root.light .uai-head { background:rgba(255,255,255,.6); border-color:rgba(30,41,59,.08); }
@@ -237,64 +250,81 @@
   .uai-root.light .uai-modal-card label { color:#475569; }
   .uai-root.light .uai-modal-card input { background:rgba(255,255,255,.8); border-color:rgba(30,41,59,.12); color:#1e293b; }
   .uai-root.light .uai-modal-hint { color:#64748b; background:rgba(30,41,59,.04); border-color:rgba(30,41,59,.12); }
+  .uai-root.light .uai-logs-controls input { background:rgba(255,255,255,.8); border-color:rgba(30,41,59,.12); color:#1e293b; }
+  .uai-root.light .uai-logs-stats { color:#64748b; }
 
-  /* Мобильные */
   @media (max-width:500px) {
     .uai-chat { bottom:0; right:0; left:0; width:100%; height:100%; max-height:100%; border-radius:0; }
     .uai-btn { bottom:16px; right:16px; width:54px; height:54px; }
+    .uai-logs-card { max-width:100%; }
   }
   `;
 
   // ===== HTML =====
   const HTML = `
-    <div class="uai-root" id="uaiRoot">
-      <button class="uai-btn" id="uaiBtn" aria-label="Открыть ассистент">
-        <i data-lucide="graduation-cap"></i>
-      </button>
+  <div class="uai-root" id="uaiRoot">
+    <button class="uai-btn" id="uaiBtn" aria-label="Открыть ассистент">
+      <i data-lucide="graduation-cap"></i>
+    </button>
 
-      <div class="uai-chat" id="uaiChat">
-        <div class="uai-head">
-          <div class="uai-head-title">
-            <div class="uai-head-title-main">
-              <i data-lucide="graduation-cap"></i>
-              <span>AI Ассистент</span>
-            </div>
-            <span class="uai-role" id="uaiRole"><i data-lucide="compass"></i> Гость</span>
+    <div class="uai-chat" id="uaiChat">
+      <div class="uai-head">
+        <div class="uai-head-title">
+          <div class="uai-head-title-main">
+            <i data-lucide="graduation-cap"></i>
+            <span>AI Ассистент</span>
           </div>
-          <div class="uai-head-actions">
-            <button class="uai-ibtn" id="uaiTheme" title="Тема" aria-label="Сменить тему"><i data-lucide="sun"></i></button>
-            <button class="uai-ibtn" id="uaiLoginBtn" title="Войти" aria-label="Войти"><i data-lucide="log-in"></i></button>
-            <button class="uai-ibtn" id="uaiClear" title="Очистить" aria-label="Очистить"><i data-lucide="trash-2"></i></button>
-          </div>
+          <span class="uai-role" id="uaiRole"><i data-lucide="compass"></i> Гость</span>
         </div>
-
-        <div class="uai-msgs" id="uaiMsgs"></div>
-
-        <div class="uai-input-bar">
-          <textarea class="uai-input" id="uaiInput" placeholder="Задайте вопрос..." rows="1"></textarea>
-          <button class="uai-send" id="uaiSend" aria-label="Отправить"><i data-lucide="arrow-up"></i></button>
+        <div class="uai-head-actions">
+          <button class="uai-ibtn" id="uaiLogsBtn" title="Системные логи" aria-label="Системные логи" style="display:none;"><i data-lucide="scroll-text"></i></button>
+          <button class="uai-ibtn" id="uaiTheme" title="Тема" aria-label="Сменить тему"><i data-lucide="sun"></i></button>
+          <button class="uai-ibtn" id="uaiLoginBtn" title="Войти" aria-label="Войти"><i data-lucide="log-in"></i></button>
+          <button class="uai-ibtn" id="uaiClear" title="Очистить" aria-label="Очистить"><i data-lucide="trash-2"></i></button>
         </div>
+      </div>
 
-        <!-- Модалка входа -->
-        <div class="uai-modal" id="uaiModal">
-          <div class="uai-modal-card">
-            <h4><i data-lucide="lock-keyhole"></i> Вход в систему</h4>
-            <p>Для студентов, преподавателей и сотрудников</p>
-            <label>Логин</label>
-            <input type="text" id="uaiLogin" placeholder="ivanov">
-            <label>Пароль</label>
-            <input type="password" id="uaiPass" placeholder="stud2026">
-            <div class="uai-modal-err" id="uaiErr"></div>
-            <div class="uai-modal-hint">
-              студент — <b>ivanov / stud2026</b><br>
-              преподаватель — <b>petrova / teach2026</b><br>
-              админ — <b>admin / admin2026</b>
-            </div>
-            <button class="uai-modal-btn" id="uaiDoLogin">Войти</button>
+      <div class="uai-msgs" id="uaiMsgs"></div>
+
+      <div class="uai-input-bar">
+        <textarea class="uai-input" id="uaiInput" placeholder="Задайте вопрос..." rows="1"></textarea>
+        <button class="uai-send" id="uaiSend" aria-label="Отправить"><i data-lucide="arrow-up"></i></button>
+      </div>
+
+      <!-- Модалка входа -->
+      <div class="uai-modal" id="uaiModal">
+        <div class="uai-modal-card">
+          <h4><i data-lucide="lock-keyhole"></i> Вход в систему</h4>
+          <p>Для студентов, преподавателей и сотрудников</p>
+          <label>Логин</label>
+          <input type="text" id="uaiLogin" placeholder="ivanov">
+          <label>Пароль</label>
+          <input type="password" id="uaiPass" placeholder="stud2026">
+          <div class="uai-modal-err" id="uaiErr"></div>
+          <div class="uai-modal-hint">
+            студент — <b>ivanov / stud2026</b><br>
+            преподаватель — <b>petrova / teach2026</b><br>
+            админ — <b>admin / admin2026</b>
           </div>
+          <button class="uai-modal-btn" id="uaiDoLogin">Войти</button>
+        </div>
+      </div>
+
+      <!-- Модалка логов (только для админа) -->
+      <div class="uai-modal" id="uaiLogsModal">
+        <div class="uai-modal-card uai-logs-card">
+          <h4><i data-lucide="scroll-text"></i> Системные логи</h4>
+          <div class="uai-logs-controls">
+            <input type="number" id="uaiLogsLines" value="100" min="10" max="1000" title="Количество строк">
+            <input type="text" id="uaiLogsFilter" placeholder="Фильтр (ERROR, BLOCKED...)">
+            <button class="uai-logs-refresh" id="uaiLogsRefresh"><i data-lucide="refresh-cw"></i> Обновить</button>
+          </div>
+          <div class="uai-logs-stats" id="uaiLogsStats"></div>
+          <pre class="uai-logs-content" id="uaiLogsContent">Загрузка...</pre>
         </div>
       </div>
     </div>
+  </div>
   `;
 
   // ===== ИНИЦИАЛИЗАЦИЯ =====
@@ -316,9 +346,12 @@
     const themeBtn = wrap.querySelector('#uaiTheme');
     const loginBtn = wrap.querySelector('#uaiLoginBtn');
     const clearBtn = wrap.querySelector('#uaiClear');
+    const logsBtn = wrap.querySelector('#uaiLogsBtn');
     const roleEl = wrap.querySelector('#uaiRole');
     const modal = wrap.querySelector('#uaiModal');
+    const logsModal = wrap.querySelector('#uaiLogsModal');
     const modalClose = () => modal.classList.remove('open');
+    const logsClose = () => logsModal.classList.remove('open');
 
     let user = JSON.parse(localStorage.getItem(USER_KEY) || 'null') || { role: 'applicant', name: 'Гость', auth: false };
     let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
@@ -343,11 +376,13 @@
     closeBtn.onclick = () => { chat.classList.remove('open'); btn.style.display = 'flex'; };
     wrap.querySelector('.uai-head-actions').appendChild(closeBtn);
 
-    // Бейдж роли
+    // Бейдж роли + видимость кнопки логов
     function updateRole() {
       const r = ROLES[user.role] || ROLES.applicant;
       roleEl.innerHTML = `<i data-lucide="${r.icon}"></i> ${r.name}`;
       loginBtn.innerHTML = user.auth ? '<i data-lucide="log-out"></i>' : '<i data-lucide="log-in"></i>';
+      // Кнопка логов видна ТОЛЬКО авторизованному админу
+      logsBtn.style.display = (user.auth && user.role === 'admin') ? 'flex' : 'none';
       if (window.lucide) lucide.createIcons();
     }
     updateRole();
@@ -377,11 +412,58 @@
       const p = wrap.querySelector('#uaiPass').value;
       const err = wrap.querySelector('#uaiErr');
       const acc = USERS[l];
-      if (!acc || acc.password !== p) { err.textContent = ' Неверный логин или пароль'; return; }
+      if (!acc || acc.password !== p) { err.textContent = '⚠ Неверный логин или пароль'; return; }
       user = { role: acc.role, name: acc.name, login: l, entity_id: acc.entity_id, student_number: acc.student_number, auth: true };
       localStorage.setItem(USER_KEY, JSON.stringify(user));
       modalClose(); updateRole(); renderWelcome();
     }
+
+    // ===== ЛОГИ (только админ) =====
+    logsBtn.onclick = () => {
+      if (!user.auth || user.role !== 'admin') { alert('Доступ к логам только для администраторов'); return; }
+      logsModal.classList.add('open');
+      loadLogs();
+    };
+    logsModal.onclick = e => { if (e.target === logsModal) logsClose(); };
+    wrap.querySelector('#uaiLogsRefresh').onclick = loadLogs;
+
+    async function loadLogs() {
+      const linesEl = wrap.querySelector('#uaiLogsLines');
+      const filterEl = wrap.querySelector('#uaiLogsFilter');
+      const contentEl = wrap.querySelector('#uaiLogsContent');
+      const statsEl = wrap.querySelector('#uaiLogsStats');
+      contentEl.textContent = 'Загрузка...';
+      try {
+        const r = await fetch(LOGS_URL, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            lines: linesEl ? parseInt(linesEl.value) || 100 : 100,
+            filter: filterEl ? filterEl.value.trim() : '',
+            user_role: user.role
+          })
+        });
+        const j = await r.json();
+        if (!r.ok || !j.success) {
+          contentEl.textContent = 'Ошибка: ' + (j.detail || 'Не удалось загрузить логи');
+          statsEl.innerHTML = '';
+          return;
+        }
+        if (j.stats) {
+          statsEl.innerHTML = `Всего: <b>${j.stats.total_lines}</b> • Вопросов: <b>${j.stats.questions}</b> • ` +
+            `Ошибок: <b style="color:#f87171;">${j.stats.errors}</b> • ` +
+            `Заблокировано: <b style="color:#fbbf24;">${j.stats.blocked}</b>`;
+        }
+        contentEl.textContent = (j.lines && j.lines.length) ? j.lines.join('\n') : 'Логи пусты или ничего не найдено по фильтру.';
+      } catch (e) {
+        contentEl.textContent = 'Ошибка соединения: ' + e.message;
+      }
+    }
+
+    // Закрытие модалок по Escape
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { modalClose(); logsClose(); }
+    });
 
     // Очистка
     clearBtn.onclick = () => {
@@ -400,12 +482,12 @@
         admin:     ['Сколько студентов на факультете ИТ?', 'Динамика набора за 5 лет']
       };
       msgs.innerHTML = `
-        <div class="uai-welcome">
-          <i data-lucide="${r.icon}"></i>
-          <h4>Здравствуйте!</h4>
-          <p>${r.desc}</p>
-          ${suggs[user.role].map(s => `<button class="uai-sugg" data-q="${s.replace(/"/g,'&quot;')}">${s}</button>`).join('')}
-        </div>`;
+      <div class="uai-welcome">
+        <i data-lucide="${r.icon}"></i>
+        <h4>Здравствуйте${user.auth ? ', ' + escapeHtml(user.name) : ''}!</h4>
+        <p>${r.desc}</p>
+        ${suggs[user.role].map(s => `<button class="uai-sugg" data-q="${s.replace(/"/g,'&quot;')}">${s}</button>`).join('')}
+      </div>`;
       msgs.querySelectorAll('.uai-sugg').forEach(b => b.onclick = () => { input.value = b.dataset.q; sendMsg(); });
       if (window.lucide) lucide.createIcons();
     }
@@ -413,11 +495,9 @@
     if (history.length) history.forEach(m => addMsg(m));
     else renderWelcome();
 
-    // Кнопка отправки
     function updSend() { send.disabled = !input.value.trim(); }
     input.addEventListener('input', () => { updSend(); input.style.height='auto'; input.style.height=Math.min(input.scrollHeight,80)+'px'; });
     updSend();
-
     send.onclick = sendMsg;
     input.onkeydown = e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } };
 
@@ -426,7 +506,6 @@
       div.className = 'uai-msg ' + m.role;
       const avIcon = m.role === 'u' ? 'user-round' : 'sparkles';
       let html = `<div class="uai-av"><i data-lucide="${avIcon}"></i></div><div class="uai-bubble">`;
-
       if (m.role === 'u') {
         html += escapeHtml(m.content);
       } else {
@@ -448,7 +527,6 @@
       html += `</div>`;
       div.innerHTML = html;
       msgs.appendChild(div);
-
       if (m.sql && window.hljs) {
         const code = div.querySelector('code.language-sql');
         if (code) hljs.highlightElement(code);
@@ -458,10 +536,9 @@
       const csv = div.querySelector('[data-csv]');
       if (csv) csv.onclick = () => {
         const tbl = csv.previousElementSibling.querySelector('table');
-        let s = ''; tbl.querySelectorAll('tr').forEach(r => { s += Array.from(r.querySelectorAll('th,td')).map(c=>`"${c.textContent.replace(/"/g,'""')}"`).join(',')+'\n'; });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([s],{type:'text/csv'})); a.download=`data_${Date.now()}.csv`; a.click();
+        let s = '\uFEFF'; tbl.querySelectorAll('tr').forEach(r => { s += Array.from(r.querySelectorAll('th,td')).map(c=>`"${c.textContent.replace(/"/g,'""')}"`).join(',')+'\n'; });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([s],{type:'text/csv;charset=utf-8;'})); a.download=`data_${Date.now()}.csv`; a.click();
       };
-
       if (window.lucide) lucide.createIcons();
       msgs.scrollTop = msgs.scrollHeight;
     }
@@ -472,19 +549,17 @@
       const userMsg = { role: 'u', content: q };
       addMsg(userMsg); history.push(userMsg);
       input.value = ''; input.style.height='auto'; updSend(); input.focus();
-
       const typing = document.createElement('div');
       typing.className = 'uai-msg b';
       typing.innerHTML = `<div class="uai-av"><i data-lucide="sparkles"></i></div><div class="uai-bubble"><div class="uai-typing"><span></span><span></span><span></span></div></div>`;
       msgs.appendChild(typing); msgs.scrollTop = msgs.scrollHeight;
-
       try {
         const r = await fetch(API_URL, {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify({
             question: q,
-            role: user.role,
+            user_role: user.role,
             user_name: user.name || '',
             entity_id: user.entity_id || null,
             student_number: user.student_number || null
@@ -493,8 +568,13 @@
         const j = await r.json();
         typing.remove();
         let botMsg;
-        if (r.ok && !j.error) {
-          botMsg = { role: 'b', content: 'Готово!', sql: j.sql, data: j.data };
+        if (r.ok && j.status === 'ok') {
+          botMsg = { role: 'b', content: j.answer || 'Готово!', sql: j.sql, data: j.data?.rows || [] };
+          if (j.warning) botMsg.content += '\n⚠️ ' + j.warning;
+        } else if (j.status === 'blocked') {
+          botMsg = { role: 'b', content: '🛡️ ' + (j.answer || 'Запрос заблокирован системой безопасности'), error: null };
+        } else if (j.status === 'error') {
+          botMsg = { role: 'b', content: '❌ ' + (j.answer || 'Произошла ошибка'), error: null };
         } else {
           botMsg = { role: 'b', content: 'Ошибка', error: j.detail || j.error || 'Не удалось выполнить запрос' };
         }

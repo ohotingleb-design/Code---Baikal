@@ -533,3 +533,136 @@ ORDER BY paid_percentage DESC
 LIMIT 50
 2026-08-27 05:42:43,948 | INFO | Success: 45 rows
 2026-08-27 05:42:44,755 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:10:40,687 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 06:10:41,080 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 06:10:41,080 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 06:10:52,466 | INFO | Question from 127.0.0.1 (role=student): Какой у меня средний балл?
+2026-08-27 06:10:55,603 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:10:55,613 | INFO | Executing SQL: SELECT AVG(g.grade) AS average_grade
+FROM grades g
+WHERE g.student_id = 1
+2026-08-27 06:10:55,692 | INFO | Success: 1 rows
+2026-08-27 06:10:56,077 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:11:10,063 | INFO | Question from 127.0.0.1 (role=student): Сколько бюджетных мест на Информатике?
+2026-08-27 06:11:11,426 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:11:11,427 | INFO | Executing SQL: SELECT p.budget_places
+FROM programs p
+WHERE p.name ILIKE '%Информатика%' LIMIT 50
+2026-08-27 06:11:11,507 | INFO | Success: 3 rows
+2026-08-27 06:11:11,923 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:11:33,670 | INFO | Question from 127.0.0.1 (role=admin): Сколько бюджетных мест на Информатике?
+2026-08-27 06:11:35,038 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:11:35,040 | INFO | Executing SQL: SELECT p.name, p.budget_places
+FROM programs p
+WHERE p.name ILIKE '%Информатика%' LIMIT 50
+2026-08-27 06:11:35,058 | INFO | Success: 3 rows
+2026-08-27 06:11:35,512 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:11:50,055 | INFO | Question from 127.0.0.1 (role=student): Сколько бюджетных мест на Информатике?
+2026-08-27 06:11:51,237 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:11:51,238 | INFO | Executing SQL: SELECT p.budget_places
+FROM programs p
+WHERE p.name ILIKE '%Информатика%' LIMIT 50
+2026-08-27 06:11:51,255 | INFO | Success: 3 rows
+2026-08-27 06:11:51,669 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:16:32,409 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 06:16:32,475 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 06:16:32,475 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 06:16:51,645 | INFO | Question from 127.0.0.1 (role=student): Сколько бюджетных мест на Информатике\
+2026-08-27 06:16:53,882 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:16:53,898 | INFO | Executing SQL: SELECT p.budget_places
+FROM programs p
+WHERE p.name ILIKE '%Информатика%' LIMIT 50
+2026-08-27 06:16:53,915 | INFO | Success: 3 rows
+2026-08-27 06:16:54,351 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:32:33,909 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 06:32:33,993 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 06:32:33,993 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 06:33:51,788 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 06:33:51,835 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 06:33:51,836 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 06:36:19,325 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 06:36:19,372 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 06:36:19,372 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 06:36:32,294 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на Информатике?
+2026-08-27 06:36:34,486 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:36:34,499 | INFO | Executing SQL: SELECT p.budget_places
+FROM programs p
+WHERE p.name ILIKE '%Информатика%' LIMIT 50
+2026-08-27 06:36:34,527 | INFO | Success: 3 rows
+2026-08-27 06:36:34,942 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:37:44,901 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на Информатике?
+2026-08-27 06:37:46,164 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:37:46,165 | INFO | Executing SQL: SELECT p.budget_places
+FROM programs p
+WHERE p.name ILIKE '%Информатика%' LIMIT 50
+2026-08-27 06:37:46,183 | INFO | Success: 3 rows
+2026-08-27 06:37:46,563 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:46:35,995 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 06:46:36,098 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 06:46:36,098 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 06:46:51,249 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на Информатике
+2026-08-27 06:46:53,565 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:46:53,576 | INFO | Executing SQL: SELECT SUM(budget_places) AS total_budget
+FROM programs
+WHERE name ILIKE '%Информатика%'
+2026-08-27 06:46:53,601 | INFO | Success: 1 rows
+2026-08-27 06:46:54,161 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:54:45,193 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 06:54:45,253 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 06:54:45,253 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 06:55:04,742 | INFO | Question from 127.0.0.1 (role=admin): Сколько бюджетных мест на Информатике?
+2026-08-27 06:55:06,845 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:55:06,854 | INFO | Executing SQL: SELECT SUM(budget_places) AS total_budget
+FROM programs
+WHERE name ILIKE '%Информатика%'
+2026-08-27 06:55:06,873 | INFO | Success: 1 rows
+2026-08-27 06:55:07,416 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 06:59:45,057 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 06:59:45,122 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 06:59:45,123 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 07:00:31,046 | INFO | Question from 127.0.0.1 (role=admin): Сколько студентов обучается на факультете ИТ?
+2026-08-27 07:00:33,899 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 07:00:33,914 | INFO | Executing SQL: SELECT COUNT(DISTINCT s.id) AS student_count
+FROM students s
+JOIN faculties f ON f.id = s.faculty_id
+WHERE f.name ILIKE 'ИТ'
+2026-08-27 07:00:33,951 | INFO | Success: 1 rows
+2026-08-27 07:00:34,339 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 07:00:53,505 | INFO | Question from 127.0.0.1 (role=admin): Сколько студентов обучается на информатике?
+2026-08-27 07:00:54,967 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 07:00:54,968 | INFO | Executing SQL: SELECT p.name, SUM(p.budget_places) AS total_budget
+FROM programs p
+WHERE p.name ILIKE '%Информатика%'
+GROUP BY p.name LIMIT 50
+2026-08-27 07:00:54,985 | INFO | Success: 3 rows
+2026-08-27 07:00:56,140 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 07:07:43,544 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 07:07:43,808 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 07:07:43,809 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 07:08:48,431 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 07:08:48,543 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 07:08:48,543 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 07:09:50,804 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 07:09:50,883 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 07:09:50,884 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 07:11:11,603 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 07:11:11,688 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 07:11:11,689 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 07:12:03,499 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 07:12:03,572 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 07:12:03,572 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 07:13:47,844 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 07:13:47,884 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 07:13:47,885 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 07:21:12,637 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 07:24:35,871 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 07:24:35,991 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 07:24:35,992 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 07:25:50,587 | INFO | Question from 127.0.0.1 (role=admin): Сколько студентов обучается на информатике?
+2026-08-27 07:25:53,592 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 07:25:53,603 | INFO | Executing SQL: SELECT p.name, SUM(p.budget_places) AS total_budget
+FROM programs p
+WHERE p.name ILIKE '%Информатика%'
+GROUP BY p.name LIMIT 50
+2026-08-27 07:25:53,625 | INFO | Success: 3 rows
+2026-08-27 07:25:54,824 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"

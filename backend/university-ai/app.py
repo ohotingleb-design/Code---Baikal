@@ -186,6 +186,31 @@ LIMIT 50
 </sql>
 Наибольшая доля платников на направлении "Экономика" — 50%. Направления без платников скрыты.
 
+❗ ПРАВИЛА ДЛЯ ПОИСКА НАПРАВЛЕНИЙ ПРОГРАММ:
+Если пользователь спрашивает про направление (например, "Информатика"), используй ILIKE '%Информатика%'.
+ОБЯЗАТЕЛЬНО используй GROUP BY p.name и агрегатную функцию SUM(p.budget_places), чтобы корректно показать общее количество мест, если в базе есть несколько направлений с похожим названием.
+Пример:
+<sql>
+SELECT p.name, SUM(p.budget_places) AS total_budget
+FROM programs p
+WHERE p.name ILIKE '%Информатика%'
+GROUP BY p.name
+ORDER BY total_budget DESC
+</sql>
+
+❗ ДУБЛИКАТЫ НАПРАВЛЕНИЙ:
+В таблице programs могут быть несколько записей с одинаковым названием (разные коды/профили).
+Если пользователь спрашивает про направление (например, "Информатика"), ОБЯЗАТЕЛЬНО используй GROUP BY и SUM:
+<sql>
+SELECT name, 
+       SUM(budget_places) AS total_budget,
+       SUM(paid_places) AS total_paid
+FROM programs
+WHERE name ILIKE '%Информатика%'
+GROUP BY name
+</sql>
+Это покажет суммарные места по всем профилям направления.
+
 ═══════ ПЕРСОНАЛИЗАЦИЯ ═══════
 • Если авторизован (student_id=X) и спрашивает "мои оценки/балл/долги" — ОБЯЗАТЕЛЬНО WHERE grades.student_id = X.
 • Если НЕ авторизован и просит "мои оценки" — попроси войти.
@@ -813,6 +838,15 @@ async def index():
 
 os.makedirs("static", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/demo")
+async def demo_page():
+    """Страница демонстрации встраиваемого виджета"""
+    try:
+        with open("static/demo.html", encoding="utf-8") as f:
+            return HTMLResponse(f.read())
+    except FileNotFoundError:
+        return HTMLResponse("<h1>Файл static/demo.html не найден</h1>", status_code=500)
 
 
 if __name__ == "__main__":
