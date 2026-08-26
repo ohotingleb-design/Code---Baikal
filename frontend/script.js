@@ -35,7 +35,7 @@ const ROLE_HINTS = {
         ]
     },
     admin: {
-        name: "Администратор", icon: "building-2",
+        name: "Сотрудник / Администрация", icon: "building-2",
         description: "Статистика по факультетам, приёмной кампании и отчётность (обезличенно).",
         suggestions: [
             "Сколько студентов обучается на факультете ИТ?",
@@ -60,11 +60,35 @@ const USERS = {
 function icon(name) { return `<i data-lucide="${name}"></i>`; }
 function refreshIcons() { if (window.lucide) lucide.createIcons(); }
 
+// ===== ТЕМЫ =====
+function applyTheme(theme) {
+    document.body.classList.toggle("light", theme === "light");
+    const btn = document.getElementById("themeBtn");
+    btn.innerHTML = theme === "light" ? icon("moon") : icon("sun");
+    btn.title = theme === "light" ? "Включить тёмную тему" : "Включить светлую тему";
+    localStorage.setItem("theme", theme);
+    refreshIcons();
+}
+
+function toggleTheme() {
+    const cur = localStorage.getItem("theme") || "dark";
+    applyTheme(cur === "dark" ? "light" : "dark");
+}
+
+// ===== СОСТОЯНИЕ КНОПКИ ОТПРАВКИ =====
+const userInputEl = document.getElementById("userInput");
+const sendBtnEl   = document.querySelector(".send-btn");
+function updateSendState() { sendBtnEl.classList.toggle("disabled", !userInputEl.value.trim()); }
+
 let currentUser = JSON.parse(localStorage.getItem(USER_KEY) || "null");
 let chatHistory = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
 
 // === ИНИЦИАЛИЗАЦИЯ ===
 document.addEventListener("DOMContentLoaded", () => {
+    // Тема: сохранённая или системная
+    applyTheme(localStorage.getItem("theme") ||
+        (window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
+
     if (!currentUser) {
         currentUser = { role: "applicant", name: "Гость", auth: false };
     }
@@ -72,10 +96,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (chatHistory.length > 0) renderHistory();
     else renderWelcome();
     refreshIcons();
-    document.getElementById("userInput").focus();
+    userInputEl.focus();
+
+    // UX: закрытие модалки по Esc и клику по фону
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeLogin(); });
+    document.getElementById("loginModal").addEventListener("click", e => {
+        if (e.target.id === "loginModal") closeLogin();
+    });
+
+    // UX: кнопка отправки «гаснет», пока поле пустое
+    userInputEl.addEventListener("input", updateSendState);
+    updateSendState();
 });
 
-// === ШАПКА: бейдж и кнопка (адаптивно: текст в span, скрывается на мобильных) ===
+// === ШАПКА ===
 function updateHeaderBadge() {
     const r = ROLE_HINTS[currentUser.role] || ROLE_HINTS.applicant;
     const badge = document.getElementById("roleBadge");
@@ -92,7 +126,7 @@ function updateHeaderBadge() {
     refreshIcons();
 }
 
-// === МОДАЛКА ВХОДА (логин + пароль) ===
+// === МОДАЛКА ВХОДА ===
 function openLogin() {
     if (currentUser.auth) {
         if (confirm("Выйти из учётной записи и вернуться к гостевому доступу?")) {
@@ -128,12 +162,8 @@ function doLogin() {
     }
 
     currentUser = {
-        role: acc.role,
-        name: acc.name,
-        login: login,
-        entity_id: acc.entity_id,
-        student_number: acc.student_number,
-        auth: true
+        role: acc.role, name: acc.name, login,
+        entity_id: acc.entity_id, student_number: acc.student_number, auth: true
     };
     localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
     closeLogin();
@@ -264,6 +294,8 @@ async function sendMessage() {
     addMessageToDOM({role: "user", content: text});
     chatHistory.push({role: "user", content: text});
     input.value = ""; autoResize(input);
+    input.focus();            // фокус остаётся в поле
+    updateSendState();        // кнопка снова «погасла»
 
     document.getElementById("typingIndicator").style.display = "flex";
     const box = document.getElementById("chatMessages");

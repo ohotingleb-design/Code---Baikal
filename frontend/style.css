@@ -39,7 +39,7 @@ body::after  { width:620px; height:620px; background:rgba(6,182,212,.40); bottom
 .header-text { display:flex; flex-direction:column; align-items:flex-start; gap:3px; min-width:0; }
 .title { font-size:18px; font-weight:600; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-/* Бейдж роли — тихий статус-подзаголовок (пассивный, приглушённый) */
+/* Бейдж роли — тихий статус-подзаголовок (пассивный) */
 .role-badge {
     display:inline-flex; align-items:center; gap:5px;
     background:rgba(255,255,255,.08);
@@ -219,7 +219,6 @@ body::after  { width:620px; height:620px; background:rgba(6,182,212,.40); bottom
     .title { font-size:15px; }
 
     .header-actions { gap:6px; }
-    /* Статус как на ПК: иконка + текст роли (длинный текст урезается многоточием) */
     .role-badge { padding:2px 8px; max-width:100%; }
     .role-badge .lucide { width:11px; height:11px; flex-shrink:0; }
     .role-badge .badge-text { min-width:0; overflow:hidden; text-overflow:ellipsis; }
@@ -239,4 +238,88 @@ body::after  { width:620px; height:620px; background:rgba(6,182,212,.40); bottom
     .send-btn { width:44px; height:44px; }
 
     .modal-card { padding:20px; border-radius:20px; max-height:92dvh; overflow-y:auto; }
+}
+
+/* ========== СВЕТЛАЯ ТЕМА ========== */
+body.light {
+    background:
+        radial-gradient(1100px 750px at 85% -10%, rgba(124,58,237,.18), transparent 60%),
+        radial-gradient(950px 700px at -10% 30%, rgba(37,99,235,.16), transparent 60%),
+        radial-gradient(900px 900px at 50% 110%, rgba(6,182,212,.14), transparent 60%),
+        linear-gradient(160deg,#f8fafc,#eef2ff 45%,#e0f2fe);
+}
+body.light::before { background:rgba(124,58,237,.25); }
+body.light::after  { background:rgba(6,182,212,.22); }
+body.light .chat-container { background:rgba(255,255,255,.45); }
+body.light .chat-header {
+    background:rgba(255,255,255,.55);
+    border-bottom:1px solid rgba(30,41,59,.08);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
+    color:#1e293b;
+}
+body.light .role-badge { background:rgba(30,41,59,.06); border-color:rgba(30,41,59,.10); color:rgba(30,41,59,.65); }
+body.light .btn-header { background:rgba(255,255,255,.6); border-color:rgba(30,41,59,.12); color:#1e293b; box-shadow:inset 0 1px 0 rgba(255,255,255,.8); }
+body.light .btn-header:hover { background:rgba(255,255,255,.9); }
+body.light .btn-clear { background:rgba(255,255,255,.6); border-color:rgba(30,41,59,.12); color:#1e293b; }
+body.light .btn-clear:hover { background:rgba(255,255,255,.9); }
+body.light .avatar { background:rgba(255,255,255,.7); border-color:rgba(30,41,59,.10); color:#475569; box-shadow:inset 0 1px 0 rgba(255,255,255,.8); }
+body.light .message-content {
+    background:rgba(255,255,255,.72); border-color:rgba(30,41,59,.10); color:#334155;
+    box-shadow:0 8px 24px rgba(30,41,59,.10), inset 0 1px 0 rgba(255,255,255,.8);
+}
+body.light .message.user .message-content { background:linear-gradient(135deg, rgba(37,99,235,.85), rgba(124,58,237,.85)); color:#fff; }
+body.light .welcome-message { color:#475569; }
+body.light .welcome-message h3 { color:#1e293b; }
+body.light .welcome-icon .lucide { color:#7c3aed; }
+body.light .suggestion { background:rgba(255,255,255,.7); border-color:rgba(30,41,59,.12); color:#2563eb; }
+body.light .suggestion:hover { background:#fff; border-color:#2563eb; }
+body.light .sql-block { background:rgba(15,23,42,.92); }
+body.light .result-table { background:rgba(255,255,255,.7); border-color:rgba(30,41,59,.12); }
+body.light .result-table th { background:rgba(30,41,59,.05); color:#334155; border-bottom-color:rgba(30,41,59,.12); }
+body.light .result-table td { color:#334155; border-bottom-color:rgba(30,41,59,.06); }
+body.light .result-table tr:hover td { background:rgba(37,99,235,.05); }
+body.light .csv-btn { background:rgba(37,99,235,.85); }
+body.light .typing-avatar { background:rgba(255,255,255,.7); border-color:rgba(30,41,59,.10); }
+body.light .typing-avatar .lucide { color:#7c3aed; }
+body.light .typing-dots span { background:rgba(30,41,59,.4); }
+body.light .chat-input-container { background:rgba(255,255,255,.55); border-top-color:rgba(30,41,59,.08); }
+body.light .input-wrapper {
+    background:rgba(255,255,255,.75); border-color:rgba(30,41,59,.12);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 10px 30px rgba(30,41,59,.08);
+}
+body.light #userInput { color:#1e293b; }
+body.light #userInput::placeholder { color:rgba(71,85,105,.5); }
+body.light .footer-hint { color:rgba(71,85,105,.6); }
+body.light .chat-messages::-webkit-scrollbar-thumb { background:rgba(30,41,59,.2); }
+body.light .modal-overlay { background:rgba(248,250,252,.5); }
+body.light .modal-card {
+    background:rgba(255,255,255,.8); border-color:rgba(30,41,59,.12); color:#334155;
+    box-shadow:0 30px 80px rgba(30,41,59,.2), inset 0 1px 0 rgba(255,255,255,.9);
+}
+body.light .modal-header h3 { color:#1e293b; }
+body.light .modal-header .lucide { color:#7c3aed; }
+body.light .modal-subtitle { color:#64748b; }
+body.light .modal-card label { color:#475569; }
+body.light .modal-card input { background:rgba(255,255,255,.8); border-color:rgba(30,41,59,.15); color:#1e293b; }
+body.light .demo-hint { color:#64748b; background:rgba(30,41,59,.04); border-color:rgba(30,41,59,.15); }
+body.light .confirm-error { color:#b91c1c; }
+body.light .error-message { background:rgba(254,226,226,.8) !important; color:#991b1b !important; border-color:rgba(220,38,38,.3); }
+
+/* ========== UX-ПАТЧ ========== */
+/* Плавная смена темы */
+body, .chat-container, .chat-header, .message-content, .suggestion, .input-wrapper,
+#userInput, .modal-card, .modal-card input, .result-table, .role-badge,
+.btn-header, .btn-clear, .chat-input-container {
+    transition: background-color .35s ease, color .35s ease, border-color .35s ease, box-shadow .35s ease;
+}
+/* Видимый фокус с клавиатуры */
+button:focus-visible, textarea:focus-visible, .suggestion:focus-visible {
+    outline:2px solid #8b5cf6; outline-offset:2px; border-radius:8px;
+}
+/* Кнопка отправки неактивна при пустом поле */
+.send-btn.disabled { opacity:.45; pointer-events:none; }
+/* Уважение к prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    body::before, body::after { animation:none; }
+    *, *::before, *::after { transition-duration:.01ms !important; animation-duration:.01ms !important; }
 }

@@ -17,6 +17,12 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
+<script>
+/* Применяем тему ДО отрисовки — без «мигания» неверной темы */
+document.body.classList.toggle("light",
+    (localStorage.getItem("theme") ||
+     (window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")) === "light");
+</script>
 
 <div class="chat-container">
     <div id="chatArea">
@@ -34,10 +40,18 @@
                 </div>
             </div>
             <div class="header-actions">
+                <!-- 1) Вход / выход -->
                 <button class="btn-header" id="loginBtn" onclick="openLogin()">
                     <i data-lucide="log-in"></i> Войти
                 </button>
-                <button class="btn-clear" onclick="clearHistory()" title="Очистить историю">
+                <!-- 2) Переключатель темы -->
+                <button class="btn-clear" id="themeBtn" onclick="toggleTheme()"
+                        title="Сменить тему" aria-label="Сменить тему">
+                    <i data-lucide="sun"></i>
+                </button>
+                <!-- 3) Очистка истории -->
+                <button class="btn-clear" onclick="clearHistory()"
+                        title="Очистить историю" aria-label="Очистить историю">
                     <i data-lucide="trash-2"></i>
                 </button>
             </div>
@@ -57,7 +71,7 @@
             <div class="input-wrapper">
                 <textarea id="userInput" placeholder="Задайте вопрос..." rows="1"
                     onkeydown="handleKeyPress(event)" oninput="autoResize(this)"></textarea>
-                <button class="send-btn" onclick="sendMessage()">
+                <button class="send-btn" onclick="sendMessage()" aria-label="Отправить">
                     <i data-lucide="arrow-up"></i>
                 </button>
             </div>
@@ -72,7 +86,7 @@
     <div class="modal-card">
         <div class="modal-header">
             <h3><i data-lucide="lock-keyhole"></i> Вход в систему</h3>
-            <button class="modal-close" onclick="closeLogin()"><i data-lucide="x"></i></button>
+            <button class="modal-close" onclick="closeLogin()" aria-label="Закрыть"><i data-lucide="x"></i></button>
         </div>
         <p class="modal-subtitle">Для студентов, преподавателей и сотрудников университета</p>
         <label for="loginInput">Логин</label>
