@@ -77,8 +77,9 @@
     background:rgba(255,255,255,.08); border-bottom:1px solid rgba(255,255,255,.12);
     padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:8px;
   }
-  .uai-head-title { display:flex; align-items:center; gap:8px; font-weight:600; font-size:14px; }
-  .uai-head-title .lucide { width:18px; height:18px; color:#a5b4fc; }
+  .uai-head-title { display:flex; flex-direction:column; gap:4px; }
+  .uai-head-title-main { display:flex; align-items:center; gap:8px; font-weight:600; font-size:14px; }
+  .uai-head-title-main .lucide { width:18px; height:18px; color:#a5b4fc; }
   .uai-head-actions { display:flex; gap:6px; }
   .uai-ibtn {
     width:32px; height:32px; border-radius:50%; border:1px solid rgba(255,255,255,.18);
@@ -88,12 +89,12 @@
   .uai-ibtn:hover { background:rgba(255,255,255,.22); }
   .uai-ibtn .lucide { width:14px; height:14px; }
 
-  /* Бейдж роли */
+  /* Бейдж роли — под заголовком */
   .uai-role {
     font-size:10px; padding:2px 8px; border-radius:999px;
     background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12);
     color:rgba(255,255,255,.7); display:inline-flex; align-items:center; gap:4px;
-    margin-left:6px;
+    align-self:flex-start;
   }
   .uai-role .lucide { width:10px; height:10px; }
 
@@ -124,10 +125,10 @@
   .uai-msg.b .uai-bubble { border-radius:14px 14px 14px 4px; }
 
   /* Приветствие */
-  .uai-welcome { text-align:center; padding:20px 10px; color:#cbd5e1; }
+  .uai-welcome { text-align:center; padding:20px 10px; }
   .uai-welcome .lucide { width:40px; height:40px; color:#a5b4fc; margin-bottom:8px; }
-  .uai-welcome h4 { color:#f8fafc; margin-bottom:6px; font-size:14px; }
-  .uai-welcome p { font-size:12px; margin-bottom:12px; }
+  .uai-welcome h4 { color:#f8fafc; margin-bottom:6px; font-size:14px; font-weight:600; }
+  .uai-welcome p { font-size:12px; margin-bottom:12px; color:#e2e8f0; line-height:1.5; }
   .uai-sugg {
     display:block; width:100%; text-align:left; margin-bottom:6px;
     background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
@@ -214,14 +215,15 @@
   /* Светлая тема */
   .uai-root.light .uai-chat { background:rgba(255,255,255,.75); color:#334155; border-color:rgba(30,41,59,.1); }
   .uai-root.light .uai-head { background:rgba(255,255,255,.6); border-color:rgba(30,41,59,.08); }
-  .uai-root.light .uai-head-title { color:#1e293b; }
+  .uai-root.light .uai-head-title-main { color:#1e293b; }
   .uai-root.light .uai-ibtn { background:rgba(255,255,255,.7); border-color:rgba(30,41,59,.12); color:#1e293b; }
   .uai-root.light .uai-ibtn:hover { background:#fff; }
   .uai-root.light .uai-role { background:rgba(30,41,59,.06); border-color:rgba(30,41,59,.1); color:rgba(30,41,59,.65); }
   .uai-root.light .uai-bubble { background:rgba(255,255,255,.7); border-color:rgba(30,41,59,.1); color:#334155; }
   .uai-root.light .uai-msg.u .uai-bubble { color:#fff; }
-  .uai-root.light .uai-welcome { color:#475569; }
-  .uai-root.light .uai-welcome h4 { color:#1e293b; }
+  .uai-root.light .uai-welcome { color:#334155; }
+  .uai-root.light .uai-welcome h4 { color:#0f172a; }
+  .uai-root.light .uai-welcome p { color:#475569; }
   .uai-root.light .uai-sugg { background:rgba(255,255,255,.7); border-color:rgba(30,41,59,.1); color:#2563eb; }
   .uai-root.light .uai-sql { background:rgba(15,23,42,.92); }
   .uai-root.light .uai-tbl { background:rgba(255,255,255,.7); border-color:rgba(30,41,59,.1); }
@@ -253,8 +255,10 @@
       <div class="uai-chat" id="uaiChat">
         <div class="uai-head">
           <div class="uai-head-title">
-            <i data-lucide="graduation-cap"></i>
-            <span>AI Ассистент</span>
+            <div class="uai-head-title-main">
+              <i data-lucide="graduation-cap"></i>
+              <span>AI Ассистент</span>
+            </div>
             <span class="uai-role" id="uaiRole"><i data-lucide="compass"></i> Гость</span>
           </div>
           <div class="uai-head-actions">
@@ -332,8 +336,6 @@
 
     // Открытие/закрытие
     btn.onclick = () => { chat.classList.add('open'); btn.style.display = 'none'; setTimeout(()=>input.focus(), 100); };
-    // Крестик в шапке — сделаем через двойной клик по иконке (упрощённо: кнопка сворачивает)
-    // Добавим кнопку закрытия динамически в шапку:
     const closeBtn = document.createElement('button');
     closeBtn.className = 'uai-ibtn';
     closeBtn.innerHTML = '<i data-lucide="x"></i>';
@@ -447,15 +449,12 @@
       div.innerHTML = html;
       msgs.appendChild(div);
 
-      // Подсветка SQL
       if (m.sql && window.hljs) {
         const code = div.querySelector('code.language-sql');
         if (code) hljs.highlightElement(code);
       }
-      // Копирование
       const cp = div.querySelector('[data-copy]');
       if (cp) cp.onclick = () => { navigator.clipboard.writeText(m.sql); cp.textContent='✓'; setTimeout(()=>cp.textContent='Копировать',1500); };
-      // CSV
       const csv = div.querySelector('[data-csv]');
       if (csv) csv.onclick = () => {
         const tbl = csv.previousElementSibling.querySelector('table');
