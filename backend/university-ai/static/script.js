@@ -11,11 +11,7 @@ const ROLE_HINTS = {
     admin: { name: "Сотрудник / Администрация", icon: "building-2", desc: "Статистика по факультетам, приёмной кампании и отчётность (обезличенно).", suggestions: ["Сколько студентов обучается на факультете ИТ?", "Покажи динамику набора студентов за 5 лет", "Какая кафедра имеет наибольшую учебную нагрузку?", "Какова средняя заполняемость аудиторий?"] }
 };
 
-const USERS = {
-    ivanov:  { password: "stud2026",  role: "student", name: "Иванов Иван", entity_id: 1, student_number: "ST-101" },
-    petrova: { password: "teach2026", role: "teacher", name: "Петрова Анна Сергеевна", entity_id: 1, student_number: null },
-    admin:   { password: "admin2026", role: "admin",   name: "Управление аналитики", entity_id: 1, student_number: null }
-};
+
 
 function getEl(id) {
     const el = document.getElementById(id);
@@ -154,26 +150,55 @@ function closeLogin() {
     if (modal) modal.style.display = "none";
 }
 
-function doLogin() {
+async function doLogin() {
     const login = getEl("loginInput")?.value.trim() || "";
     const pass = getEl("passwordInput")?.value || "";
     const err = getEl("loginError");
-    if (err) err.innerHTML = "";
-
-    const acc = USERS[login];
-    if (!acc || acc.password !== pass) {
-        if (err) {
-            err.innerHTML = `${icon("triangle-alert")} Неверный логин или пароль.`;
-            refreshIcons();
-        }
+    
+    if (!login || !pass) {
+        if (err) err.innerHTML = `${icon("triangle-alert")} Введите логин и пароль`;
+        refreshIcons();
         return;
     }
 
-    currentUser = { role: acc.role, name: acc.name, login, entity_id: acc.entity_id, student_number: acc.student_number, auth: true };
-    localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
-    closeLogin();
-    updateHeaderBadge();
-    renderWelcome();
+    if (err) err.innerHTML = `${icon("loader-2")} Проверка...`;
+    refreshIcons();
+
+    try {
+        const response = await fetch(AUTH_URL, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ login: login, password: pass })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+            currentUser = { 
+                role: result.role, 
+                name: result.name, 
+                login: login, 
+                entity_id: result.entity_id, 
+                student_number: result.student_number, 
+                auth: true 
+            };
+            localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+            closeLogin();
+            updateHeaderBadge();
+            renderWelcome();
+        } else {
+            if (err) {
+                err.innerHTML = `${icon("triangle-alert")} ${result.detail || "Неверный логин или пароль."}`;
+                refreshIcons();
+            }
+        }
+    } catch (e) {
+        console.error("Login error:", e);
+        if (err) {
+            err.innerHTML = `${icon("triangle-alert")} Ошибка сети. Сервер недоступен.`;
+            refreshIcons();
+        }
+    }
 }
 
 function useSuggestion(el) {

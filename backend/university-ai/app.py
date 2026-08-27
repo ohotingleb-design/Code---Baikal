@@ -741,27 +741,10 @@ class LoginRequest(BaseModel):
     login: str
     password: str
 
-DEMO_USERS = {
-    "ivanov": {"password": "stud2026", "role": "student", "name": "Иванов Иван", "entity_id": 1, "student_number": "ST-00001"},
-    "petrova": {"password": "teach2026", "role": "teacher", "name": "Петрова Анна Сергеевна", "entity_id": 1, "student_number": None},
-    "admin": {"password": "admin2026", "role": "admin", "name": "Управление аналитики", "entity_id": 1, "student_number": None}
-}
-
 
 @app.post("/api/auth")
 async def auth(data: LoginRequest):
-    logger.info(f"Auth attempt: login='{data.login}', password='{data.password}'")
-    
-    demo_user = DEMO_USERS.get(data.login.lower())
-    if demo_user and demo_user["password"] == data.password:
-        logger.info(f"Auth success via DEMO_USERS: {data.login}")
-        return JSONResponse({
-            "success": True,
-            "role": demo_user["role"],
-            "name": demo_user["name"],
-            "entity_id": demo_user["entity_id"],
-            "student_number": demo_user["student_number"]
-        })
+    logger.info(f"Auth attempt: login='{data.login}'")
     
     conn = None
     try:
@@ -771,17 +754,7 @@ async def auth(data: LoginRequest):
         )
         cur = conn.cursor()
         
-        cur.execute("SELECT COUNT(*) as count FROM users")
-        total_users = cur.fetchone()
-        logger.info(f"Total users in DB: {total_users['count']}")
-        
-        cur.execute("SELECT login, role, full_name FROM users WHERE login = %s", (data.login,))
-        user_no_pass = cur.fetchone()
-        if user_no_pass:
-            logger.info(f"User found (without password check): {user_no_pass}")
-        else:
-            logger.warning(f"User NOT found in DB with login: '{data.login}'")
-        
+        # Ищем пользователя строго в базе данных
         cur.execute("""
             SELECT login, role, full_name, entity_id, student_number 
             FROM users 
@@ -800,17 +773,20 @@ async def auth(data: LoginRequest):
                 "student_number": user["student_number"]
             })
         else:
-            logger.warning(f"User found but password mismatch for: {data.login}")
+            logger.warning(f"Auth failed (invalid credentials) for: {data.login}")
             
     except Exception as e:
         logger.error(f"Auth DB error: {str(e)}")
         import traceback
         logger.error(traceback.format_exc())
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "detail": "Ошибка сервера при авторизации"}
+        )
     finally:
         if conn:
             conn.close()
     
-    logger.warning(f"Auth failed for: {data.login}")
     return JSONResponse(
         status_code=401,
         content={"success": False, "detail": "Неверный логин или пароль"}

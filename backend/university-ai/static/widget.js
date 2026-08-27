@@ -7,6 +7,7 @@
   const STORAGE_KEY = 'uai_theme';
   const USER_KEY = 'uai_user';
   const HISTORY_KEY = 'uai_history';
+  const AUTH_URL = window.location.origin + '/api/auth';
 
   // ===== РОЛИ =====
   const ROLES = {
@@ -14,12 +15,6 @@
     student:   { name: 'Студент', icon: 'graduation-cap', desc: 'Моя успеваемость и дисциплины.' },
     teacher:   { name: 'Преподаватель', icon: 'book-open', desc: 'Мои дисциплины и нагрузка.' },
     admin:     { name: 'Администрация', icon: 'building-2', desc: 'Отчётность по факультетам и системные логи.' }
-  };
-
-  const USERS = {
-    ivanov:  { password: 'stud2026',  role: 'student', name: 'Иванов Иван', entity_id: 1, student_number: 'ST-101' },
-    petrova: { password: 'teach2026', role: 'teacher', name: 'Петрова А.С.', entity_id: 1, student_number: null },
-    admin:   { password: 'admin2026', role: 'admin',   name: 'Администрация', entity_id: 1, student_number: null }
   };
 
   // ===== ДИНАМИЧЕСКАЯ ЗАГРУЗКА CDN =====
@@ -407,15 +402,58 @@
     wrap.querySelector('#uaiDoLogin').onclick = doLogin;
     wrap.querySelector('#uaiPass').onkeydown = e => { if (e.key === 'Enter') doLogin(); };
 
-    function doLogin() {
+    async function doLogin() {
       const l = wrap.querySelector('#uaiLogin').value.trim();
       const p = wrap.querySelector('#uaiPass').value;
       const err = wrap.querySelector('#uaiErr');
-      const acc = USERS[l];
-      if (!acc || acc.password !== p) { err.textContent = '⚠ Неверный логин или пароль'; return; }
-      user = { role: acc.role, name: acc.name, login: l, entity_id: acc.entity_id, student_number: acc.student_number, auth: true };
-      localStorage.setItem(USER_KEY, JSON.stringify(user));
-      modalClose(); updateRole(); renderWelcome();
+      const btn = wrap.querySelector('#uaiDoLogin');
+
+      if (!l || !p) {
+        err.textContent = '⚠️ Введите логин и пароль';
+        return;
+      }
+
+      // Блокируем кнопку и показываем индикатор загрузки
+      err.textContent = '';
+      btn.disabled = true;
+      btn.textContent = 'Проверка...';
+
+      try {
+        const response = await fetch(AUTH_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ login: l, password: p })
+        });
+
+        const j = await response.json();
+
+        if (response.ok && j.success) {
+          // ✅ Успешный вход — сохраняем данные из БД
+          user = {
+            role: j.role,
+            name: j.name,
+            login: l,
+            entity_id: j.entity_id || null,
+            student_number: j.student_number || null,
+            auth: true
+          };
+          localStorage.setItem(USER_KEY, JSON.stringify(user));
+          modalClose();
+          updateRole();
+          renderWelcome();
+        } else {
+          // ❌ Неверные учётные данные
+          err.textContent = '❌ ' + (j.detail || 'Неверный логин или пароль');
+        }
+      } catch (e) {
+        // 🌐 Ошибка сети
+        err.textContent = '🌐 Ошибка соединения с сервером';
+        console.error('Login error:', e);
+      } finally {
+        // Возвращаем кнопку в исходное состояние
+        btn.disabled = false;
+        btn.textContent = 'Войти';
+      }
     }
 
     // ===== ЛОГИ (только админ) =====
