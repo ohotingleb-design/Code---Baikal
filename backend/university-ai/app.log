@@ -753,3 +753,57 @@ FROM grades g
 WHERE g.student_id = 2
 2026-08-27 08:22:04,133 | INFO | Success: 1 rows
 2026-08-27 08:22:04,509 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 08:27:00,301 | INFO | Auth attempt: login='sidorov'
+2026-08-27 08:27:00,395 | INFO | Auth success via DB: sidorov
+2026-08-27 08:27:05,887 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на «Экономике»?
+2026-08-27 08:27:07,677 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 08:27:07,760 | INFO | Executing SQL: SELECT SUM(budget_places) AS total_budget
+FROM programs
+WHERE name ILIKE '%Экономика%'
+2026-08-27 08:27:07,809 | INFO | Success: 1 rows
+2026-08-27 08:27:08,233 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 08:39:51,646 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на «Экономике»?
+2026-08-27 08:39:53,273 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 08:39:53,282 | INFO | Executing SQL: SELECT SUM(budget_places) AS total_budget
+FROM programs
+WHERE name ILIKE '%Экономика%'
+2026-08-27 08:39:53,321 | INFO | Success: 1 rows
+2026-08-27 08:39:53,752 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 08:41:21,650 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 08:41:21,799 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 08:41:21,800 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 08:41:37,307 | INFO | Auth attempt: login='sidorov'
+2026-08-27 08:41:37,546 | WARNING | Auth failed: wrong password for 'sidorov'
+2026-08-27 08:41:38,559 | INFO | Auth attempt: login='sidorov'
+2026-08-27 08:41:38,793 | WARNING | Auth failed: wrong password for 'sidorov'
+2026-08-27 08:41:54,894 | INFO | Auth attempt: login='sidorov'
+2026-08-27 08:41:55,133 | WARNING | Auth failed: wrong password for 'sidorov'
+2026-08-27 08:41:56,035 | INFO | Auth attempt: login='sidorov'
+2026-08-27 08:41:56,264 | WARNING | Auth failed: wrong password for 'sidorov'
+2026-08-27 08:42:07,703 | INFO | Question from 127.0.0.1 (role=applicant): Сколько бюджетных мест на «Экономике»?
+2026-08-27 08:42:09,972 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 08:42:09,983 | INFO | Executing SQL: SELECT SUM(budget_places) AS total_budget
+FROM programs
+WHERE name ILIKE '%Экономика%'
+2026-08-27 08:42:10,001 | INFO | Success: 1 rows
+2026-08-27 08:42:10,433 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 08:42:25,764 | INFO | Auth attempt: login='sidorov'
+2026-08-27 08:42:25,993 | INFO | Auth success: 'sidorov' (role=student)
+2026-08-27 08:42:44,561 | INFO | Auth attempt: login='admin'
+2026-08-27 08:42:44,789 | INFO | Auth success: 'admin' (role=admin)
+2026-08-27 08:50:00,759 | INFO | Question from 127.0.0.1 (role=admin): Сколько студентов обучается на факультете ИТ?
+2026-08-27 08:50:02,679 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 08:50:02,713 | INFO | Executing SQL: SELECT COUNT(DISTINCT s.id) AS student_count
+FROM students s
+JOIN faculties f ON f.id = s.faculty_id
+WHERE f.name ILIKE '%ИТ%'
+2026-08-27 08:50:02,878 | INFO | Success: 1 rows
+2026-08-27 08:50:03,291 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 08:50:54,664 | INFO | === СЕРВЕР ЗАПУЩЕН. Логи: C:\Game\Code---Baikal\backend\university-ai\app.log ===
+2026-08-27 08:50:54,755 | INFO | Loaded real DB schema: 11 tables
+2026-08-27 08:50:54,755 | INFO | Real tables in DB: admins, applicants, courses, data_classification, departments, faculties, grades, programs, students, teachers, users
+2026-08-27 08:51:12,443 | INFO | Question from 127.0.0.1 (role=admin): Сколько студентов обучается на факультете ИТ?
+2026-08-27 08:51:15,489 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"
+2026-08-27 08:51:15,498 | INFO | Executing SQL: SELECT COUNT(DISTINCT s.id) AS student_count FROM students s JOIN faculties f ON f.id = s.faculty_id WHERE f.name ILIKE '%ИТ%'
+2026-08-27 08:51:15,518 | INFO | Success: 1 rows
+2026-08-27 08:51:15,962 | INFO | HTTP Request: POST https://ai.api.cloud.yandex.net/v1/chat/completions "HTTP/1.1 200 OK"

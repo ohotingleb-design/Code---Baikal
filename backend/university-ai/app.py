@@ -4,6 +4,7 @@ import re
 import time
 import os
 import json
+import bcrypt
 from decimal import Decimal
 from datetime import datetime, date
 from pathlib import Path
@@ -18,6 +19,7 @@ import psycopg
 from psycopg.rows import dict_row
 from openai import OpenAI
 from dotenv import load_dotenv
+from passlib.context import CryptContext
 
 load_dotenv()
 
@@ -49,6 +51,18 @@ logging.basicConfig(
 )
 logger = logging.getLogger("uni-ai")
 logger.info(f"=== СЕРВЕР ЗАПУЩЕН. Логи: {LOG_FILE_PATH} ===")
+
+# ================= ХЕШИРОВАНИЕ ПАРОЛЕЙ =================
+# bcrypt с автоматическим обновлением алгоритма при необходимости
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str) -> str:
+    """Создаёт хеш пароля"""
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Проверяет пароль против хеша"""
+    return pwd_context.verify(plain_password, hashed_password)
 
 # ================= ЗАГРУЗКА РЕАЛЬНОЙ СХЕМЫ БД =================
 def get_real_schema():
@@ -362,7 +376,7 @@ def run_db(sql):
             cleaned.append(c)
     sql = ''.join(cleaned)
     
-    logger.info("Executing SQL: %s", sql[:300])
+    logger.info("Executing SQL: %s", ' '.join(sql.split())[:300])
     
     conn = psycopg.connect(
         host=DB_HOST, port=DB_PORT, dbname=DB_NAME,
@@ -744,8 +758,9 @@ class LoginRequest(BaseModel):
 
 @app.post("/api/auth")
 async def auth(data: LoginRequest):
+    # Логируем ТОЛЬКО логин (без пароля!) — пароль в логи писать нельзя
     logger.info(f"Auth attempt: login='{data.login}'")
-    
+
     conn = None
     try:
         conn = psycopg.connect(
@@ -753,44 +768,73 @@ async def auth(data: LoginRequest):
             user=DB_USER, password=DB_PASSWORD, row_factory=dict_row
         )
         cur = conn.cursor()
-        
-        # Ищем пользователя строго в базе данных
+
+        # Ищем пользователя только по логину
         cur.execute("""
-            SELECT login, role, full_name, entity_id, student_number 
-            FROM users 
-            WHERE login = %s AND password = %s
-        """, (data.login, data.password))
-        
+            SELECT login, password, role, full_name, entity_id, student_number
+            FROM users
+            WHERE login = %s
+        """, (data.login,))
         user = cur.fetchone()
-        
-        if user:
-            logger.info(f"Auth success via DB: {user['login']}")
-            return JSONResponse({
-                "success": True,
-                "role": user["role"],
-                "name": user["full_name"],
-                "entity_id": user["entity_id"],
-                "student_number": user["student_number"]
-            })
+
+        if not user:
+            logger.warning(f"Auth failed: user '{data.login}' not found")
+            return JSONResponse(
+                status_code=401,
+                content={"success": False, "detail": "Неверный логин или пароль"}
+            )
+
+        # Проверяем пароль через bcrypt
+        stored_hash = user['password']
+        is_hashed = stored_hash.startswith('$2b$') or stored_hash.startswith('$2a$')
+
+        if is_hashed:
+            # Нормальный режим: проверяем хеш
+            password_ok = bcrypt.checkpw(
+                data.password.encode('utf-8'),
+                stored_hash.encode('utf-8')
+            )
         else:
-            logger.warning(f"Auth failed (invalid credentials) for: {data.login}")
-            
+            # Легаси-режим: пароль ещё не мигрирован
+            # Проверяем напрямую и сразу хешируем (плавная миграция)
+            password_ok = (stored_hash == data.password)
+            if password_ok:
+                new_hash = bcrypt.hashpw(
+                    data.password.encode('utf-8'),
+                    bcrypt.gensalt(rounds=12)
+                ).decode('utf-8')
+                cur.execute(
+                    "UPDATE users SET password = %s WHERE login = %s",
+                    (new_hash, data.login)
+                )
+                conn.commit()
+                logger.info(f"Auto-migrated password to hash for: {data.login}")
+
+        if not password_ok:
+            logger.warning(f"Auth failed: wrong password for '{data.login}'")
+            return JSONResponse(
+                status_code=401,
+                content={"success": False, "detail": "Неверный логин или пароль"}
+            )
+
+        logger.info(f"Auth success: '{data.login}' (role={user['role']})")
+        return JSONResponse({
+            "success": True,
+            "role": user["role"],
+            "name": user["full_name"],
+            "entity_id": user["entity_id"],
+            "student_number": user["student_number"]
+        })
+
     except Exception as e:
-        logger.error(f"Auth DB error: {str(e)}")
-        import traceback
-        logger.error(traceback.format_exc())
+        logger.error(f"Auth DB error: {str(e)[:200]}")
         return JSONResponse(
             status_code=500,
-            content={"success": False, "detail": "Ошибка сервера при авторизации"}
+            content={"success": False, "detail": "Ошибка сервера"}
         )
     finally:
         if conn:
             conn.close()
-    
-    return JSONResponse(
-        status_code=401,
-        content={"success": False, "detail": "Неверный логин или пароль"}
-    )
 
 
 @app.get("/health")
